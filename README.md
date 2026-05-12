@@ -61,7 +61,7 @@ OpenTraffic/
 │   ├── license_check.py         # 许可证校验
 │   ├── anomaly/                 # 异常检测模块
 │   ├── enums/                   # 枚举定义
-│   ├── models/                  # 算法模型（v1, v2_1, v2_2, v2_3, fuzzylight）
+│   ├── models/                  # 算法模型（v1, v2_1, v2_2, v2_3,）
 │   ├── saferules/               # 安全规则系统（pre/post rules）
 │   └── utils/                   # 工具（配置、特征提取、日志、ReplayBuffer）
 ├── algorithms_sdk/              # SDK Python 源码
@@ -99,11 +99,6 @@ OpenTraffic/
 │   ├── signal_env_simulator.py  # 信号机状态模拟器
 │   ├── fake_push.py             # 假算法数据推送器
 │   └── setup_redis_config.py    # Redis 配置初始化
-├── build/                       # Cython 编译脚本
-│   ├── setup.py                 # x86_64 编译
-│   ├── setup_arm.py             # ARM64 交叉编译
-│   ├── build.sh                 # x86_64 打包脚本
-│   └── build_arm.sh             # ARM64 打包脚本
 ├── frontend/                    # 仿真回放前端（浏览器打开 index.html）
 ├── test_simple.py               # 最简算法测试（无外部依赖）
 ├── test_sdk_cityflow.py         # CityFlow 集成仿真测试
