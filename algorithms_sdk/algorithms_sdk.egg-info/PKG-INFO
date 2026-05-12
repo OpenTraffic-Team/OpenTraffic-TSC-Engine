@@ -1,0 +1,363 @@
+Metadata-Version: 2.1
+Name: algorithms_sdk
+Version: 1.0.0
+Summary: 交通信号控制算法SDK - 支持CityFlow/SUMO仿真和生产环境
+Author-email: Traffic Control Team <team@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/example/algorithms-sdk
+Project-URL: Documentation, https://algorithms-sdk.readthedocs.io
+Project-URL: Repository, https://github.com/example/algorithms-sdk
+Project-URL: Issues, https://github.com/example/algorithms-sdk/issues
+Keywords: traffic,signal,control,cityflow,sumo,sdk
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: psutil>=5.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+
+# Traffic Signal Control Algorithm SDK
+
+一款面向智能交通信号控制的开源 SDK，支持 CityFlow、SUMO 仿真平台和生产环境部署。
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/Status-Beta-orange.svg)]()
+
+---
+
+## 功能特性
+
+- **多模式支持** - 同时支持 CityFlow 仿真、SUMO 仿真和生产环境
+- **统一接口** - 只需一套 API，适配不同运行环境
+- **自动状态转换** - 内置仿真平台数据格式适配器
+- **性能监控** - 实时统计推理耗时、决策成功率等指标
+- **健康检查** - 内置服务健康状态检测接口
+- **类型安全** - 完整的类型定义，方便 IDE 智能提示
+
+---
+
+## 快速开始
+
+### 安装
+
+```bash
+# 从源码安装
+pip install -e ./algorithms_sdk/
+
+# 或安装开发依赖
+pip install -e ./algorithms_sdk/[dev]
+```
+
+### 5 分钟上手
+
+```python
+from algorithms_sdk import AlgorithmSDK
+
+# 1. 创建 SDK 实例（仿真模式）
+sdk = AlgorithmSDK(
+    mode="cityflow",
+    config_path="./config/intersection.json"
+)
+
+# 2. 构造输入数据
+state = {
+    "路口ID": {
+        "cameraState": {"vehicles": [...]},
+        "recognitionSnap[...]": {...}
+    }
+}
+
+env_state = {
+    "phases": [1, 2, 3],
+    "currentPhase": 1,
+    "phaseTime": 30,
+    "currentPlan": "东西直行"
+}
+
+# 3. 获取决策
+result = sdk.step(state, env_state)
+
+print(f"推荐相位: {result.action.phase}")
+print(f"推理耗时: {result.inference_time_ms:.2f}ms")
+
+# 4. 查看监控指标
+metrics = sdk.get_metrics()
+print(f"总决策: {metrics.total_decisions}")
+
+# 5. 关闭
+sdk.close()
+```
+
+---
+
+## 使用场景
+
+### 场景一：CityFlow 仿真
+
+适用于强化学习算法训练和评估：
+
+```python
+from algorithms_sdk import AlgorithmSDK
+
+sdk = AlgorithmSDK(mode="cityflow", config_path="config/intersection.json")
+
+for episode in range(100):
+    for step in range(1000):
+        # 获取仿真状态
+        cityflow_state = cityflow_engine.get_state()
+        env_state = signal_controller.get_state()
+
+        # 获取算法决策
+        result = sdk.step(cityflow_state, env_state)
+
+        # 执行决策
+        cityflow_engine.set_phase(result.action.phase)
+
+sdk.close()
+```
+
+### 场景二：SUMO 仿真
+
+适用于交通仿真研究：
+
+```python
+sdk = AlgorithmSDK(mode="sumo", config_path="config/intersection.json")
+
+while traci.simulation.getMinExpectedNumber() > 0:
+    traci.simulationStep()
+
+    sumo_state = traci_handler.get_state()
+    result = sdk.step(sumo_state, env_state)
+
+    traci.trafficlight.setPhase("intersection_1", result.action.phase_index)
+```
+
+### 场景三：生产环境部署
+
+连接真实信号机，通过中间件通信：
+
+```python
+from algorithms_sdk import AlgorithmSDK
+
+sdk = AlgorithmSDK(
+    mode="production",
+    mq_config_path="./config/mq_config.json",
+    config_path="./config/intersection.json"
+)
+
+# SDK 自动监听中间件，接收数据并回传决策
+# 无需手动调用 step()
+
+# 定期检查健康状态
+while True:
+    health = sdk.get_health_status()
+    if not health.is_healthy:
+        alert(health.message)
+    time.sleep(60)
+
+sdk.close()
+```
+
+---
+
+## API 参考
+
+### AlgorithmSDK
+
+主类，提供统一的算法调用接口。
+
+```python
+from algorithms_sdk import AlgorithmSDK
+
+sdk = AlgorithmSDK(
+    mode: str = "cityflow",           # 运行模式: cityflow | sumo | production
+    config_path: str = None,          # 路口配置文件路径
+    mq_config_path: str = None,      # 中间件配置（仅生产模式）
+    algo_version: str = "v4",        # 算法版本: v1 | v2 | v3 | v4
+    logger: Callable = None,         # 日志回调函数
+)
+```
+
+#### 核心方法
+
+| 方法 | 说明 |
+|------|------|
+| `sdk.step(state, env_state)` | 执行一步决策，返回 `DecisionResult` |
+| `sdk.get_metrics()` | 获取性能指标，返回 `MetricsData` |
+| `sdk.get_health_status()` | 获取健康状态，返回 `HealthStatus` |
+| `sdk.reset()` | 重置统计指标 |
+| `sdk.close()` | 关闭 SDK，释放资源 |
+
+#### 返回类型
+
+**DecisionResult** - 决策结果
+
+```python
+@dataclass
+class DecisionResult:
+    action: PhaseAction              # 决策动作
+    timestamp: float                # 时间戳
+    inference_time_ms: float        # 推理耗时(毫秒)
+    algorithm_version: str          # 算法版本
+```
+
+**PhaseAction** - 动作详情
+
+```python
+@dataclass
+class PhaseAction:
+    phase: str                       # 相位名称
+    phase_index: int                 # 相位索引
+    confidence: float                # 置信度 (0-1)
+    reasoning: str                   # 决策原因
+    safety_check_passed: bool        # 安全检查是否通过
+```
+
+**MetricsData** - 性能指标
+
+```python
+@dataclass
+class MetricsData:
+    total_decisions: int            # 总决策次数
+    successful_decisions: int       # 成功决策
+    failed_decisions: int           # 失败决策
+    avg_inference_time_ms: float    # 平均推理耗时
+```
+
+---
+
+## 输入数据格式
+
+### 仿真状态 (state)
+
+```python
+state = {
+    "路口ID": {
+        "cameraState": {},                      # 相机状态
+        "sensor_status": {},                    # 传感器状态
+        "recognitionSnap[road_x_y_z]": {        # 车辆检测数据
+            "timestamp": 1700000000,
+            "vehicles": [
+                {
+                    "id": "v1",
+                    "lane": "XML_CNL_N_0",    # 车道ID
+                    "speed": [5.0],            # 速度(m/s)
+                    "type": "vehicle"          # 车辆类型
+                },
+                ...
+            ]
+        }
+    }
+}
+```
+
+### 环境状态 (env_state)
+
+```python
+env_state = {
+    "phases": [1, 2, 3],           # 可用相位列表
+    "currentPhase": 1,             # 当前相位索引
+    "phaseTime": 30,               # 当前相位已运行时间(秒)
+    "currentPlan": "东西直行"      # 当前相位名称
+}
+```
+
+---
+
+## 配置说明
+
+### 中间件配置 (mq_config.json)
+
+```json
+{
+    "redis_addr": "127.0.0.1",
+    "redis_port": 6379,
+    "redis_password": "",
+    "NATS_URL": "nats://user:pass@server:4222"
+}
+```
+
+### 路口配置
+
+参考 `config/` 目录下的配置文件，包括：
+- 路口几何参数
+- 相位方案定义
+- 车道映射关系
+
+---
+
+## 项目结构
+
+```
+algorithms_sdk/
+├── __init__.py              # SDK 主入口
+├── config.py                # 配置管理
+├── pyproject.toml           # 包配置 (pip install)
+├── core/                    # 核心模块
+│   ├── sdk.py              # SDK 主类
+│   ├── types.py            # 类型定义
+│   ├── constants.py        # 常量定义
+│   └── exceptions.py       # 异常定义
+├── adapters/               # 适配器层
+│   ├── base.py             # 适配器基类
+│   ├── simulation.py       # 仿真适配器 (CityFlow/SUMO)
+│   └── production.py       # 生产环境适配器
+├── monitoring/             # 监控模块
+│   ├── metrics.py          # 性能指标收集
+│   └── health.py          # 健康检查
+├── utils/                  # 工具模块
+│   └── converter.py        # 数据格式转换
+└── examples/               # 示例代码
+    ├── quick_demo.py       # 快速上手
+    ├── simulation_demo.py  # CityFlow/SUMO 仿真
+    └── production_demo.py  # 生产环境示例
+```
+
+---
+
+## 算法版本
+
+| 版本 | 名称 | 说明 |
+|------|------|------|
+| v1 | 最大压力 | 基于车道压力评估的自适应控制 |
+| v2 | MLP | 多层感知机神经网络 |
+| v3 | 模糊控制 | 基于模糊逻辑的相位决策 |
+| v4 | 注意力机制 | 基于注意力机制的深度强化学习 |
+
+---
+
+## 依赖
+
+- Python >= 3.8
+- psutil >= 5.9.0
+
+可选依赖：
+- CityFlow >= 1.0 (CityFlow 仿真)
+- sumolib >= 1.18.0, traci >= 1.18.0 (SUMO 仿真)
+- redis (生产环境)
+- nats-py (生产环境)
+
+---
+
+## License
+
+Apache License 2.0 - see [LICENSE](LICENSE) 文件
+
+---
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！

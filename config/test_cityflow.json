@@ -1,0 +1,100 @@
+{
+    "lane_to_phase": {
+        "{intersection_id}_N_0": "NS_NW",
+        "{intersection_id}_N_1": "NS_NE",
+        "{intersection_id}_S_1": "SN",
+        "{intersection_id}_S_2": "SW",
+        "{intersection_id}_W_1": "WE",
+        "{intersection_id}_W_2": "WN",
+        "{intersection_id}_E_0": "EW_EN",
+        "{intersection_id}_E_1": "EW_ES"
+    },
+    "neighbour_to_phase": {},
+    "cur_inter_id": "XML_CNL",
+    "phase_min_change_time": {
+        "WE_EW_WN_ES": 20,
+        "NS_SN_NE_SW": 20
+    },
+    "phase_min_change_time_high_level": {
+        "WE_EW_WN_ES": 20,
+        "NS_SN_NE_SW": 20
+    },
+    "phase_min_change_time_high_morning_level": {
+        "WE_EW_WN_ES": 20,
+        "NS_SN_NE_SW": 20
+    },
+    "phase_min_change_time_high_evening_level": {
+        "WE_EW_WN_ES": 20,
+        "NS_SN_NE_SW": 20
+    },
+    "phase_max_keep_time": {
+        "WE_EW_WN_ES": 60,
+        "NS_SN_NE_SW": 60
+    },
+    "max_keep_time_high_level": {
+        "WE_EW_WN_ES": 65,
+        "NS_SN_NE_SW": 65
+    },
+    "max_keep_time_high_morning_level": {
+        "WE_EW_WN_ES": 65,
+        "NS_SN_NE_SW": 65
+    },
+    "max_keep_time_high_evening_level": {
+        "WE_EW_WN_ES": 65,
+        "NS_SN_NE_SW": 65
+    },
+    "phase_preference": {
+        "0": 1,
+        "1": 1
+    },
+    "phase_max_keep_num": 5,
+    "delay_time": 1,
+    "advanced_weight": 1.4,
+    "debug": true,
+    "min_running_speed": 7,
+    "phases": [
+        "WE_EW_WN_ES",
+        "NS_SN_NE_SW"
+    ],
+    "stagePhase": {
+        "1": "WE_EW_WN_ES",
+        "2": "NS_SN_NE_SW"
+    },
+    "bind_phases": [
+        0,
+        1
+    ],
+    "layers_order_flag": [
+        false
+    ],
+    "all_roadnet_light_phase": [
+        "WE_EW_WN_ES",
+        "NS_SN_NE_SW"
+    ],
+    "high_level_weight_minspeed": [
+        2.5,
+        6
+    ],
+    "morning_rush": [
+        "08:00",
+        "08:30"
+    ],
+    "evening_rush": [
+        "18:00",
+        "18:30"
+    ],
+    "custom_peak_hours": [
+        "16:50",
+        "17:10"
+    ],
+    "anomaly_detect_interval": 10,
+    "person_min_time": 40,
+    "start_anomaly_detect": false,
+    "person_recongnize_plan": 0,
+    "person_factor": 5,
+    "max_transition_duration": 20,
+    "init_time": 5,
+    "cityflowTest":1,
+    "is_cycle_control": false,
+    "algo_version": "v1"
+}

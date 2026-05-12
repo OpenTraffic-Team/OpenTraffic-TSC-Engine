@@ -1,0 +1,9 @@
+{
+    "signalCtl": {
+        "stagePhase": {
+            "1": "WE_EW_WN_ES",
+            "2": "NS_SN_NE_SW"
+        },
+        "isInControl": true
+    }
+}

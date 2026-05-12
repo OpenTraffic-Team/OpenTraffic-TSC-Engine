@@ -1,0 +1,19 @@
+{
+    "redis_addr": "47.110.91.222",
+    "redis_port": 6390,
+    "redis_password": "TempRedis_2026_LinkOnly_9f3K",
+    "intersection": "HHL_QHDD",
+    "state_stream_read_from": "$",
+    "env_stream_read_from": "$",
+    "db_config": 0,
+    "redis_keys": {
+        "origin_state":       {"prefix": "origin_info_state", "db": 1},
+        "env_state":          {"prefix": "signal_env_state",  "db": 0},
+        "lane_to_phase":      {"prefix": "lane_to_phase",     "db": 0},
+        "algorithm_control":  {"prefix": "algorithm_control", "db": 0},
+        "signal_config":      {"prefix": "signalConfig",      "db": 0},
+        "alg_config":         {"prefix": "algConfig",         "db": 0},
+        "sensor_config":      {"prefix": "sensorConfig",      "db": 0},
+        "hardware_config":    {"prefix": "intersection_device","db": 0}
+    }
+}

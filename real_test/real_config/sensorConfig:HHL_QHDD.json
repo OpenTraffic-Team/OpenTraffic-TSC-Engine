@@ -1,0 +1,62 @@
+{
+    "id": "HHL_QHDD",
+    "roads": [
+        {
+            "id": "HHL_QHDD_N",
+            "lanes": "[]",
+            "radars": {
+                "id": "RADAR_N",
+                "ip": "10.0.0.1",
+                "type": "XD",
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "cameras": []
+        },
+        {
+            "id": "HHL_QHDD_S",
+            "lanes": "[]",
+            "radars": {
+                "id": "RADAR_S",
+                "ip": "10.0.0.2",
+                "type": "XD",
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "cameras": []
+        },
+        {
+            "id": "HHL_QHDD_E",
+            "lanes": "[]",
+            "radars": {
+                "id": "RADAR_E",
+                "ip": "10.0.0.3",
+                "type": "XD",
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "cameras": []
+        },
+        {
+            "id": "HHL_QHDD_W",
+            "lanes": "[]",
+            "radars": {
+                "id": "RADAR_W",
+                "ip": "10.0.0.4",
+                "type": "XD",
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "cameras": []
+        }
+    ],
+    "crosswalks": []
+}
