@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.so
+build/
+dist/
+*.egg-info/
+.idea/
+.vscode/
+*.tar.gz
+.cache_info.dat
+.sys_backup.bin
+.sys_info.bin
+*$py.class
+Zone.Identifier
