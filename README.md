@@ -376,4 +376,10 @@ python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>')
 
 感谢 [CityFlow](https://github.com/cityflow-project/CityFlow) 提供的开源交通仿真平台！
 
+## 🌟 Star 历史
+
+<a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
+  <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
+</a>
+
 </div>
