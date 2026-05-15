@@ -10,36 +10,7 @@
 ### OpenTraffic — 面向智能交通信号控制的开源 SDK。
 <br/>
 
-<div align="center">
-<p align="center">
-<img src=figure/Framework.png width=90% />
-</p>
-</div>
-
-> **📝 论文: 敬请期待**<br/>
-> **🌍 项目主页: 敬请期待**<br/>
 > **GitHub: https://github.com/OpenTraffic-Team/opentraffic-tsc-engine**
-
-<br/>
-
-## :loudspeaker: 最新动态
-- **[2026/05/15]** 发布 OpenTraffic 初始版本，支持最大压力（v1）和注意力机制（v2.x）算法，兼容 CityFlow 仿真与 Redis 生产环境部署。
-- **[2026/05/15]** 新增 CityFlow 源码安装指南，同时支持 `pip install` 与源码编译两种方式。
-
-<br/>
-
-## :black_nib: 路线图<a name="todo"></a>
-
-- [x] 发布 **v1**（最大压力）和 **v2.x**（注意力机制）算法源码。
-- [x] 支持 **CityFlow 仿真**模式，内置 Mock 引擎自动回退。
-- [x] 支持 **Redis Stream** 生产环境部署。
-- [x] 内置**安全规则链**（前置/后置规则），保障信号控制安全。
-- [x] 实时**性能监控**（推理耗时、决策成功率、内存占用）。
-- [ ] 多路口**协调控制**开发中。<br/>
-- [ ] **强化学习**自适应控制算法即将发布。<br/>
-- [ ] **ARM64** 边缘设备部署支持进行中。<br/>
-- [ ] 详细**技术报告** 📝 即将发布。<br/>
-- [ ] 更多**真实路口**基准测试筹备中。
 
 <br/>
 
@@ -61,7 +32,6 @@
   - [:books: API 参考](#books-api-参考)
   - [:notebook: 输入/输出格式](#notebook-输入输出格式)
 - [:hammer_and_wrench: 编译部署](#hammer_and_wrench-编译部署)
-- [:bar_chart: 算法版本](#bar_chart-算法版本)
 - [:question: 常见问题](#question-常见问题)
 - [:heart: 致谢](#heart-致谢)
 
@@ -73,7 +43,6 @@
 
 - **操作系统**: Linux x86_64
 - **Python**: >= 3.8
-- **算法源码**: `algorithms/` 目录（开源版本，`.py` 源文件）
 
 ### 安装依赖
 
@@ -85,7 +54,7 @@ cd opentraffic-tsc-engine
 # 核心依赖（必装）
 pip install numpy scipy scikit-learn redis psutil PyYAML Cython
 
-# PyTorch（v2.x 算法模型需要）
+# PyTorch（算法模型需要）
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 ```
 
@@ -115,7 +84,7 @@ pip install .
 | `stagePhase` | dict | 相位编号 → 名称映射 |
 | `phase_min_change_time` | dict | 各相位最小绿灯时间（秒） |
 | `phase_max_keep_time` | dict | 各相位最大绿灯时间（秒） |
-| `algo_version` | string | 算法版本（`"v1"` / `"v2_1"` / `"v2_2"` / `"v2_3"`） |
+| `algo_version` | string | 算法版本（`"v1"`） |
 | `cityflowTest` | int | CityFlow 测试标记（0/1） |
 | `debug` | bool | 调试模式 |
 | `morning_rush` / `evening_rush` | list | 高峰时段 |
@@ -157,8 +126,6 @@ config/cityflow/
 <br/>
 
 ## :fire: 运行模式
-
-**我们提供三种运行模式，适用于不同场景，请根据需求选择。**
 
 ### :books: 相关文件
 * `test_simple.py` — 最简算法测试（无外部依赖）
@@ -372,18 +339,6 @@ bash build_arm.sh      # ARM64 交叉编译
 
 <br/>
 
-## :bar_chart: 算法版本
-
-| 版本 | 算法 | 说明 |
-|---------|-----------|-------------|
-| `v1` | 最大压力 | 经典最大压力控制，无需训练 |
-| `v2_1` | 注意力机制 | 基于注意力机制的特征提取 |
-| `v2_2` | 注意力 + 经验回放 | 引入经验回放提升稳定性 |
-| `v2_3` | 高级注意力 | 最新注意力模型，架构优化 |
-| `fuzzylight` | 模糊逻辑 | 基于模糊逻辑的信号控制 |
-
-<br/>
-
 ## :question: 常见问题
 
 <details>
@@ -417,27 +372,8 @@ python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>')
 
 <br/>
 
-## 📝 引用
-
-```bibtex
-@software{opentraffic2026,
-  author    = {OpenTraffic Team},
-  title     = {OpenTraffic: An Open-Source SDK for Intelligent Traffic Signal Control},
-  year      = {2026},
-  url       = {https://github.com/OpenTraffic-Team/opentraffic-tsc-engine}
-}
-```
-
-<br/>
-
 ## :heart: 致谢
 
 感谢 [CityFlow](https://github.com/cityflow-project/CityFlow) 提供的开源交通仿真平台！
-
-## 🌟 Star 历史
-
-<a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
-  <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
-</a>
 
 </div>
