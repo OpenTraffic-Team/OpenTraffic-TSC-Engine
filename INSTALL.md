@@ -85,12 +85,4 @@ python test_sdk_cityflow.py --steps 3600 --fixed
 
 预期输出：所有测试正常完成，无 ModuleNotFoundError。
 
-## 6. 编译部署
 
-```bash
-cd build
-bash build.sh          # x86_64
-bash build_arm.sh      # ARM64 (交叉编译)
-```
-
-编译产物为 `build/algorithms.tar.gz`，解压后只包含 `.so` 文件。

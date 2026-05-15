@@ -314,7 +314,7 @@ def run_simulation(total_steps: int = 3600, fixed_timing: bool = False):
         last_decision = phase
 
         # 每 30 步打印一次
-        if step % 30 == 0:
+        if step % 3 == 0:
             _print_status(sim_time, last_phase, phase_time, transition_cnt, eng)
 
     # ── 4. 仿真结束统计 ──────────────────────────────────────────────────

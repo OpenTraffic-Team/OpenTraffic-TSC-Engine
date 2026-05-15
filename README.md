@@ -1,28 +1,75 @@
-# OpenTraffic — 交通信号控制算法 SDK
+<div align="center">
 
-面向智能交通信号控制的开源 SDK，提供统一 Python 接口，支持 CityFlow 仿真和生产环境（Redis）部署。
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8+-green.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20x86__64-orange.svg?style=for-the-badge&logo=linux&logoColor=white)]()
+[![GitHub Stars](https://img.shields.io/github/stars/OpenTraffic-Team/opentraffic-tsc-engine?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OpenTraffic-Team/opentraffic-tsc-engine)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20x86__64-orange.svg)]()
+</div>
 
----
+### OpenTraffic — 面向智能交通信号控制的开源 SDK。
+<br/>
 
-## 功能特性
+<div align="center">
+<p align="center">
+<img src=figure/Framework.png width=90% />
+</p>
+</div>
 
-| 特性 | 说明 |
-|------|------|
-| 多算法支持 | 最大压力（v1）、注意力机制（v2.x），后续逐步开放更多 |
-| 多模式支持 | CityFlow 仿真、生产环境（Redis 消息队列） |
-| 统一接口 | 一套 API 适配不同运行环境 |
-| 安全规则链 | 内置前置/后置安全规则，保障信号控制安全 |
-| 性能监控 | 实时统计推理耗时、决策成功率、内存占用 |
-| 健康检查 | 内置服务状态检测接口 |
-| 许可证管理 | 内置授权校验，支持过期控制 |
+> **📝 论文: 敬请期待**<br/>
+> **🌍 项目主页: 敬请期待**<br/>
+> **GitHub: https://github.com/OpenTraffic-Team/opentraffic-tsc-engine**
 
----
+<br/>
 
-## 环境要求
+## :loudspeaker: 最新动态
+- **[2026/05/15]** 发布 OpenTraffic 初始版本，支持最大压力（v1）和注意力机制（v2.x）算法，兼容 CityFlow 仿真与 Redis 生产环境部署。
+- **[2026/05/15]** 新增 CityFlow 源码安装指南，同时支持 `pip install` 与源码编译两种方式。
+
+<br/>
+
+## :black_nib: 路线图<a name="todo"></a>
+
+- [x] 发布 **v1**（最大压力）和 **v2.x**（注意力机制）算法源码。
+- [x] 支持 **CityFlow 仿真**模式，内置 Mock 引擎自动回退。
+- [x] 支持 **Redis Stream** 生产环境部署。
+- [x] 内置**安全规则链**（前置/后置规则），保障信号控制安全。
+- [x] 实时**性能监控**（推理耗时、决策成功率、内存占用）。
+- [ ] 多路口**协调控制**开发中。<br/>
+- [ ] **强化学习**自适应控制算法即将发布。<br/>
+- [ ] **ARM64** 边缘设备部署支持进行中。<br/>
+- [ ] 详细**技术报告** 📝 即将发布。<br/>
+- [ ] 更多**真实路口**基准测试筹备中。
+
+<br/>
+
+## 🌟 目录
+
+- [:rocket: 快速开始](#rocket-快速开始)
+  - [环境要求](#环境要求)
+  - [安装依赖](#安装依赖)
+  - [安装 CityFlow（可选）](#安装-cityflow可选)
+- [:pencil: 配置说明](#pencil-配置说明)
+  - [路口配置](#路口配置)
+  - [CityFlow 引擎配置](#cityflow-引擎配置)
+  - [Redis / MQ 配置](#redis--mq-配置)
+- [:fire: 运行模式](#fire-运行模式)
+  - [:ledger: 模式一 — 最简测试（无外部依赖）](#ledger-模式一--最简测试无外部依赖)
+  - [:ledger: 模式二 — CityFlow 仿真](#ledger-模式二--cityflow-仿真)
+  - [:ledger: 模式三 — Redis 生产模式](#ledger-模式三--redis-生产模式)
+- [:mechanical_arm: SDK 使用](#mechanical_arm-sdk-使用)
+  - [:books: API 参考](#books-api-参考)
+  - [:notebook: 输入/输出格式](#notebook-输入输出格式)
+- [:hammer_and_wrench: 编译部署](#hammer_and_wrench-编译部署)
+- [:bar_chart: 算法版本](#bar_chart-算法版本)
+- [:question: 常见问题](#question-常见问题)
+- [:heart: 致谢](#heart-致谢)
+
+<br/>
+
+## :rocket: 快速开始
+
+### 环境要求
 
 - **操作系统**: Linux x86_64
 - **Python**: >= 3.8
@@ -32,98 +79,107 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/OpenTraffic-Team/OpenTraffic-Control
-cd OpenTraffic
+git clone https://github.com/OpenTraffic-Team/opentraffic-tsc-engine
+cd opentraffic-tsc-engine
 
 # 核心依赖（必装）
 pip install numpy scipy scikit-learn redis psutil PyYAML Cython
 
 # PyTorch（v2.x 算法模型需要）
 pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
 
-# 可选依赖
-pip install cityflow    # CityFlow 仿真
+### 安装 CityFlow（可选）
 
-# 或一键安装（见 INSTALL.md）
+```bash
+# 源码安装（项目已内置 CityFlow）
+cd CityFlow
+pip install .
 ```
 
 > 详细安装步骤见 [INSTALL.md](INSTALL.md)
 
----
+<br/>
 
-## 项目结构
+## :pencil: 配置说明
+
+### 路口配置
+
+路口配置文件（如 `config/test_cityflow.json` 或 `config/test_net.json`）定义了信号控制参数：
+
+| 字段 | 类型 | 说明 |
+|--------|------|------|
+| `cur_inter_id` | string | 路口标识，如 `"XML_CNL"` |
+| `lane_to_phase` | dict | 车道到相位映射 |
+| `phases` | list | 可用相位名称列表 |
+| `stagePhase` | dict | 相位编号 → 名称映射 |
+| `phase_min_change_time` | dict | 各相位最小绿灯时间（秒） |
+| `phase_max_keep_time` | dict | 各相位最大绿灯时间（秒） |
+| `algo_version` | string | 算法版本（`"v1"` / `"v2_1"` / `"v2_2"` / `"v2_3"`） |
+| `cityflowTest` | int | CityFlow 测试标记（0/1） |
+| `debug` | bool | 调试模式 |
+| `morning_rush` / `evening_rush` | list | 高峰时段 |
+
+### CityFlow 引擎配置
+
+位于 `config/cityflow/`：
 
 ```
-OpenTraffic/
-├── algorithms/                  # 算法源码（.py 文件，部署时编译为 .so）
-│   ├── advanced_control.py      # 算法主控
-│   ├── cycle_control.py         # 周期控制
-│   ├── license_check.py         # 许可证校验
-│   ├── anomaly/                 # 异常检测模块
-│   ├── enums/                   # 枚举定义
-│   ├── models/                  # 算法模型（v1, v2_1, v2_2, v2_3,）
-│   ├── saferules/               # 安全规则系统（pre/post rules）
-│   └── utils/                   # 工具（配置、特征提取、日志、ReplayBuffer）
-├── algorithms_sdk/              # SDK Python 源码
-│   ├── __init__.py              # SDK 入口（AlgorithmSDK）
-│   ├── advanced_control.py      # AdvancedControl 主控制类
-│   ├── config.py                # 配置管理
-│   ├── core/                    # 核心模块
-│   │   ├── sdk.py               # AlgorithmSDK 类
-│   │   ├── types.py             # 类型定义（DecisionResult, MetricsData 等）
-│   │   ├── constants.py         # 版本常量
-│   │   └── exceptions.py        # 异常定义
-│   ├── adapters/                # 适配器层
-│   │   ├── base.py              # 基类
-│   │   ├── simulation.py        # 仿真适配器（CityFlow）
-│   │   └── production.py        # 生产环境适配器（Redis）
-│   ├── monitoring/              # 监控模块
-│   │   ├── metrics.py           # 指标收集
-│   │   └── health.py            # 健康检查
-│   ├── mq_utils/                # 消息队列工具
-│   │   ├── mq_config.py         # MQ 配置解析
-│   │   └── redis/               # Redis Stream 读写
-│   ├── mock/                    # CityFlow Mock 引擎
-│   ├── utils/                   # 数据转换工具
-│   └── examples/                # SDK 使用示例
-├── config/                      # 配置文件
-│   ├── mq_config.json           # Redis 连接配置
-│   ├── test_cityflow.json       # CityFlow 仿真测试配置
-│   ├── test_net.json            # 离线/生产测试配置
-│   └── cityflow/                # CityFlow 引擎配置
-│       ├── algo_config.yaml     # 算法参数
-│       ├── config.json          # CityFlow 引擎参数
-│       ├── roadnet.json         # 路网定义
-│       └── flow.json            # 车流定义（由脚本自动生成）
-├── real_test/                   # Redis 联调测试工具
-│   ├── signal_env_simulator.py  # 信号机状态模拟器
-│   ├── fake_push.py             # 假算法数据推送器
-│   └── setup_redis_config.py    # Redis 配置初始化
-├── frontend/                    # 仿真回放前端（浏览器打开 index.html）
-├── test_simple.py               # 最简算法测试（无外部依赖）
-├── test_sdk_cityflow.py         # CityFlow 集成仿真测试
-├── run_algorithms_real.py       # 生产模式算法主程序
-├── INSTALL.md                   # 环境安装指南
-├── LICENSE                      # Apache 2.0
-└── README.md
+config/cityflow/
+├── algo_config.yaml     # 算法参数
+├── config.json          # CityFlow 引擎参数
+├── roadnet.json         # 路网定义
+└── flow.json            # 车流定义（由脚本自动生成）
 ```
 
----
+### Redis / MQ 配置
 
-## 快速开始
+编辑 `config/mq_config.json` 配置生产模式 Redis 连接：
 
-### 最简测试（无需任何外部服务）
+```json
+{
+    "redis_addr": "<Redis 服务器 IP>",
+    "redis_port": 6379,
+    "redis_password": "<密码>",
+    "intersection": "HHL_QHDD",
+    "redis_keys": {
+        "origin_state":       {"prefix": "origin_info_state", "db": 1},
+        "env_state":          {"prefix": "signal_env_state",  "db": 0},
+        "algorithm_control":  {"prefix": "algorithm_control", "db": 0},
+        "signal_config":      {"prefix": "signalConfig",      "db": 0},
+        "alg_config":         {"prefix": "algConfig",         "db": 0},
+        "sensor_config":      {"prefix": "sensorConfig",      "db": 0},
+        "hardware_config":    {"prefix": "intersection_device","db": 0}
+    }
+}
+```
+
+<br/>
+
+## :fire: 运行模式
+
+**我们提供三种运行模式，适用于不同场景，请根据需求选择。**
+
+### :books: 相关文件
+* `test_simple.py` — 最简算法测试（无外部依赖）
+* `test_sdk_cityflow.py` — CityFlow 集成仿真测试
+* `run_algorithms_real.py` — 生产模式算法主程序
+
+### :ledger: 模式一 — 最简测试（无外部依赖）
+
+***适用场景：快速验证算法逻辑，无需任何外部服务。***
 
 ```bash
 python test_simple.py
 ```
 
-### CityFlow 仿真测试
+使用合成数据运行算法 — 无需 CityFlow，无需 Redis。
+
+### :ledger: 模式二 — CityFlow 仿真
+
+***适用场景：完整的 CityFlow 交通仿真，支持可视化回放。***
 
 ```bash
-# 需要先安装 CityFlow
-pip install cityflow
-
 # 运行 3600 步自适应算法仿真
 python test_sdk_cityflow.py
 
@@ -138,9 +194,50 @@ python test_sdk_cityflow.py --fixed
 
 > 未安装 CityFlow 时会自动使用内置 Mock 引擎，用于纯算法逻辑验证。
 
----
+### :ledger: 模式三 — Redis 生产模式
 
-## SDK 使用说明
+***适用场景：模拟真实生产环境，通过 Redis Stream 传输数据。***
+
+**架构：**
+
+```
+┌──────────────────────────┐      ┌─────────────────┐
+│ signal_env_simulator.py  │ ──→  │                 │
+│ (模拟信号机推送状态)        │      │   Redis Stream  │
+└──────────────────────────┘      │                 │
+                                  │  origin_info_   │
+┌──────────────────────────┐      │  state:xxx      │
+│ fake_push.py             │ ──→  │  signal_env_    │
+│ (模拟传感器数据推送)        │      │  state:xxx      │
+└──────────────────────────┘      │  algorithm_     │
+                                  │  control:xxx    │
+┌──────────────────────────┐      │                 │
+│ run_algorithms_real.py   │ ←──→ │                 │
+│ (算法主程序)               │      └─────────────────┘
+└──────────────────────────┘
+```
+
+**步骤：**
+
+```bash
+# 1. 初始化 Redis 配置（仅首次）
+python real_test/setup_redis_config.py
+
+# 2. 启动信号机模拟器
+python real_test/signal_env_simulator.py
+
+# 3. （可选）推送假算法数据
+python real_test/fake_push.py --phase 2
+
+# 4. 启动算法主程序
+python run_algorithms_real.py
+```
+
+<br/>
+
+## :mechanical_arm: SDK 使用
+
+### :books: API 参考
 
 SDK 提供两层 API：
 
@@ -149,7 +246,7 @@ SDK 提供两层 API：
 | 高层 | `AlgorithmSDK` | 统一接口，自动适配不同模式 |
 | 底层 | `AdvancedControl` | 直接调用，支持 `test=True` 本地测试 |
 
-### 方式一：AlgorithmSDK（推荐）
+**方式一：AlgorithmSDK（推荐）**
 
 ```python
 from algorithms_sdk import AlgorithmSDK
@@ -174,7 +271,7 @@ health = sdk.get_health_status()
 sdk.close()
 ```
 
-### 方式二：AdvancedControl 直接调用
+**方式二：AdvancedControl 直接调用**
 
 ```python
 from algorithms_sdk.advanced_control import AdvancedControl
@@ -193,15 +290,12 @@ phase = algo.take_action(state, env_state)
 # phase = algo.take_action_to_redis()
 ```
 
----
+### :notebook: 输入/输出格式
 
-## 输入/输出格式
+**state（车辆数据）** — 支持两种格式：
 
-### state（车辆数据）
-
-支持两种格式：
-
-**格式一：CityFlow 仿真格式**
+<details>
+<summary><b>格式一：CityFlow 仿真格式</b></summary>
 
 ```python
 state = {
@@ -209,17 +303,17 @@ state = {
         "HHL_QHDD_N_0": ["v1", "v2"],
         "HHL_QHDD_N_1": [],
         "HHL_QHDD_S_0": ["v4"],
-        # ...
     }
 }
-# 车辆信息单独传入
 vehicles = {
     "v1": {"speed": 5.0, "running": "1"},
     "v2": {"speed": 3.0, "running": "1"},
 }
 ```
+</details>
 
-**格式二：生产环境格式**（`recognitionSnap` 传感器数据）
+<details>
+<summary><b>格式二：生产环境格式</b>（recognitionSnap 传感器数据）</summary>
 
 ```python
 state = {
@@ -232,12 +326,12 @@ state = {
                 {"id": "v1", "lane": "XML_CNL_N_0", "speed": [5.0], "type": "vehicle"}
             ]
         },
-        # ...
     }
 }
 ```
+</details>
 
-### env_state（信号机状态）
+**env_state（信号机状态）**
 
 ```python
 env_state = {
@@ -250,16 +344,14 @@ env_state = {
 }
 ```
 
-### take_action() 返回值
+**返回值**
 
 ```python
+# take_action() 返回值：
 phase = 1       # 正常决策：相位编号
 phase = None    # 安全规则未通过 或 异常检测触发
-```
 
-### AlgorithmSDK.step() 返回值
-
-```python
+# AlgorithmSDK.step() 返回值：
 @dataclass
 class DecisionResult:
     action: PhaseAction        # 决策动作
@@ -268,116 +360,9 @@ class DecisionResult:
     algorithm_version: str     # 算法版本
 ```
 
----
+<br/>
 
-## Redis 联调测试（生产模式模拟）
-
-模拟真实生产环境：通过 Redis Stream 传输传感器和信号机数据，算法从 Redis 读取并推送决策。
-
-### 架构
-
-```
-┌──────────────────────────┐      ┌─────────────────┐
-│ signal_env_simulator.py  │ ──→  │                 │
-│ (模拟信号机推送 env_state) │      │   Redis Stream  │
-└──────────────────────────┘      │                 │
-                                  │  origin_info_   │
-┌──────────────────────────┐      │  state:xxx      │
-│ fake_push.py             │ ──→  │  signal_env_    │
-│ (模拟算法假数据推送)        │      │  state:xxx      │
-└──────────────────────────┘      │  algorithm_     │
-                                  │  control:xxx    │
-┌──────────────────────────┐      │                 │
-│ run_algorithms_real.py   │ ←──→ │                 │
-│ (算法主程序)               │      └─────────────────┘
-└──────────────────────────┘
-```
-
-### 步骤
-
-**1. 配置 Redis 连接**
-
-编辑 `config/mq_config.json`：
-
-```json
-{
-    "redis_addr": "<Redis 服务器 IP>",
-    "redis_port": 6379,
-    "redis_password": "<密码>",
-    "intersection": "HHL_QHDD",
-    "redis_keys": {
-        "origin_state":       {"prefix": "origin_info_state", "db": 1},
-        "env_state":          {"prefix": "signal_env_state",  "db": 0},
-        "algorithm_control":  {"prefix": "algorithm_control", "db": 0},
-        "signal_config":      {"prefix": "signalConfig",      "db": 0},
-        "alg_config":         {"prefix": "algConfig",         "db": 0},
-        "sensor_config":      {"prefix": "sensorConfig",      "db": 0},
-        "hardware_config":    {"prefix": "intersection_device","db": 0}
-    }
-}
-```
-
-**2. 初始化 Redis 配置**
-
-```bash
-# 写入路口配置（仅首次）
-python real_test/setup_redis_config.py
-
-# 预览模式（不实际写入）
-python real_test/setup_redis_config.py --dry-run
-```
-
-**3. 启动信号机模拟器**
-
-```bash
-python real_test/signal_env_simulator.py
-```
-
-**4. （可选）推送假算法数据**
-
-```bash
-python real_test/fake_push.py --phase 2
-```
-
-**5. 启动算法主程序**
-
-```bash
-python run_algorithms_real.py
-```
-
----
-
-## 配置文件说明
-
-### 路口配置（`config/test_cityflow.json` / `config/test_net.json`）
-
-| 配置项 | 类型 | 说明 |
-|--------|------|------|
-| `cur_inter_id` | string | 路口标识，如 `"XML_CNL"` |
-| `lane_to_phase` | dict | 车道到相位映射 |
-| `phases` | list | 可用相位名称列表 |
-| `stagePhase` | dict | 相位编号 → 名称映射 |
-| `phase_min_change_time` | dict | 各相位最小绿灯时间（秒） |
-| `phase_max_keep_time` | dict | 各相位最大绿灯时间（秒） |
-| `algo_version` | string | 算法版本（`"v1"` / `"v2_1"` / `"v2_2"` / `"v2_3"`） |
-| `cityflowTest` | int | CityFlow 测试标记（0/1） |
-| `debug` | bool | 调试模式 |
-| `morning_rush` / `evening_rush` | list | 高峰时段 |
-
-### 中间件配置（`config/mq_config.json`）
-
-| 字段 | 说明 |
-|------|------|
-| `redis_addr` | Redis 服务器 IP |
-| `redis_port` | Redis 端口 |
-| `redis_password` | Redis 密码 |
-| `intersection` | 当前控制的路口 ID |
-| `redis_keys.*.prefix` | Redis key 前缀 |
-| `redis_keys.*.db` | Redis 数据库编号（0-15） |
-
----
-
-## 编译部署
+## :hammer_and_wrench: 编译部署
 
 ```bash
 cd build
@@ -385,56 +370,74 @@ bash build.sh          # x86_64 编译，生成 algorithms.tar.gz
 bash build_arm.sh      # ARM64 交叉编译
 ```
 
----
+<br/>
 
-## 常见问题
+## :bar_chart: 算法版本
 
-### SO 文件加载失败
+| 版本 | 算法 | 说明 |
+|---------|-----------|-------------|
+| `v1` | 最大压力 | 经典最大压力控制，无需训练 |
+| `v2_1` | 注意力机制 | 基于注意力机制的特征提取 |
+| `v2_2` | 注意力 + 经验回放 | 引入经验回放提升稳定性 |
+| `v2_3` | 高级注意力 | 最新注意力模型，架构优化 |
+| `fuzzylight` | 模糊逻辑 | 基于模糊逻辑的信号控制 |
+
+<br/>
+
+## :question: 常见问题
+
+<details>
+<summary><b>SO 文件加载失败？</b></summary>
 
 ```bash
-# 确认平台架构
 uname -m                          # 应输出 x86_64
 python -c "import struct; print(struct.calcsize('P')*8)"  # 应输出 64
 ```
+</details>
 
-### 许可证校验失败
+<details>
+<summary><b>许可证校验失败？</b></summary>
 
 检查系统时间是否正确，确认算法文件有效性。
+</details>
 
-### CityFlow 未安装
+<details>
+<summary><b>CityFlow 未安装？</b></summary>
 
 运行 `test_sdk_cityflow.py` 时自动切换到 Mock 引擎模式。
+</details>
 
-### Redis 连接失败
+<details>
+<summary><b>Redis 连接失败？</b></summary>
 
 ```bash
 python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>'); print(r.ping())"
 ```
+</details>
 
----
+<br/>
 
-## 核心依赖
+## 📝 引用
 
-| 依赖 | 版本 | 用途 |
-|------|------|------|
-| Python | >= 3.8 | 运行环境 |
-| numpy | >= 1.24 | 数值计算 |
-| scipy | >= 1.10 | 科学计算 |
-| scikit-learn | >= 1.3 | 机器学习 |
-| PyTorch | >= 2.0 | 神经网络模型（v2.x） |
-| redis-py | >= 4.0 | Redis 连接 |
-| psutil | >= 5.9 | 内存监控 |
-| PyYAML | >= 6.0 | YAML 解析 |
-| CityFlow | >= 1.0 | 仿真引擎（可选） |
+```bibtex
+@software{opentraffic2026,
+  author    = {OpenTraffic Team},
+  title     = {OpenTraffic: An Open-Source SDK for Intelligent Traffic Signal Control},
+  year      = {2026},
+  url       = {https://github.com/OpenTraffic-Team/opentraffic-tsc-engine}
+}
+```
 
----
+<br/>
 
-## License
+## :heart: 致谢
 
-Apache License 2.0 — 详见 [LICENSE](LICENSE) 文件
+感谢 [CityFlow](https://github.com/cityflow-project/CityFlow) 提供的开源交通仿真平台！
 
----
+## 🌟 Star 历史
 
-## 贡献
+<a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
+  <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
+</a>
 
-欢迎提交 Issue 和 Pull Request！
+</div>
