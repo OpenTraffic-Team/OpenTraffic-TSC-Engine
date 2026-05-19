@@ -15,8 +15,8 @@
       "HHL_QHDD_N",
       "HHL_QHDD_S_out"
     ],
-    "interval": 20.03,
-    "startTime": 11.68,
+    "interval": 15.39,
+    "startTime": 8.02,
     "endTime": 3610
   },
   {
@@ -35,8 +35,8 @@
       "HHL_QHDD_N",
       "HHL_QHDD_E_out"
     ],
-    "interval": 55.09,
-    "startTime": 47.6,
+    "interval": 42.31,
+    "startTime": 30.16,
     "endTime": 3610
   },
   {
@@ -55,8 +55,8 @@
       "HHL_QHDD_S",
       "HHL_QHDD_N_out"
     ],
-    "interval": 20.03,
-    "startTime": 3.36,
+    "interval": 15.39,
+    "startTime": 13.67,
     "endTime": 3610
   },
   {
@@ -75,8 +75,8 @@
       "HHL_QHDD_S",
       "HHL_QHDD_W_out"
     ],
-    "interval": 55.09,
-    "startTime": 0.92,
+    "interval": 42.31,
+    "startTime": 14.82,
     "endTime": 3610
   },
   {
@@ -95,8 +95,8 @@
       "HHL_QHDD_E",
       "HHL_QHDD_W_out"
     ],
-    "interval": 19.35,
-    "startTime": 2.31,
+    "interval": 23.01,
+    "startTime": 9.4,
     "endTime": 3610
   },
   {
@@ -115,8 +115,8 @@
       "HHL_QHDD_E",
       "HHL_QHDD_S_out"
     ],
-    "interval": 53.2,
-    "startTime": 32.53,
+    "interval": 63.27,
+    "startTime": 4.37,
     "endTime": 3610
   },
   {
@@ -135,8 +135,8 @@
       "HHL_QHDD_W",
       "HHL_QHDD_E_out"
     ],
-    "interval": 19.35,
-    "startTime": 1.54,
+    "interval": 23.01,
+    "startTime": 15.31,
     "endTime": 3610
   },
   {
@@ -155,8 +155,8 @@
       "HHL_QHDD_W",
       "HHL_QHDD_N_out"
     ],
-    "interval": 53.2,
-    "startTime": 2.29,
+    "interval": 63.27,
+    "startTime": 56.01,
     "endTime": 3610
   }
 ]

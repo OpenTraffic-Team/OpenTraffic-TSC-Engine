@@ -7,9 +7,9 @@ name = "algorithms_sdk"
 version = "1.0.0"
 description = "交通信号控制算法SDK - 支持CityFlow/SUMO仿真和生产环境"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
-    {name = "Traffic Control Team", email = "team@example.com"}
+    {name = "OpenTraffic Team"}
 ]
 keywords = ["traffic", "signal", "control", "cityflow", "sumo", "sdk"]
 classifiers = [
@@ -26,6 +26,12 @@ requires-python = ">=3.8"
 dependencies = [
     "psutil>=5.9.0",
     "redis>=4.0.0",
+    "numpy>=1.21.0",
+    "torch>=1.10.0",
+    "scikit-learn>=1.0.0",
+    "PyYAML>=6.0",
+    "joblib>=1.2.0",
+    "scipy>=1.7.0",
 ]
 
 [project.optional-dependencies]
@@ -38,10 +44,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/algorithms-sdk"
-Documentation = "https://algorithms-sdk.readthedocs.io"
-Repository = "https://github.com/example/algorithms-sdk"
-Issues = "https://github.com/example/algorithms-sdk/issues"
+Homepage = "https://github.com/OpenTraffic-Team/opentraffic-tsc-engine"
+Repository = "https://github.com/OpenTraffic-Team/opentraffic-tsc-engine"
+Issues = "https://github.com/OpenTraffic-Team/opentraffic-tsc-engine/issues"
 
 [project.scripts]
 # algorithm-sdk = "algorithms_sdk.cli:main"  # 待实现 CLI

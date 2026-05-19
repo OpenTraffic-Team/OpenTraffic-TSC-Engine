@@ -11,49 +11,48 @@ conda create -n trafficlight38 python=3.8
 conda activate trafficlight38
 ```
 
-## 2. Python 依赖
-
-| 包名 | 版本 | 用途 |
-|------|------|------|
-| numpy | >=1.24 | 数值计算 |
-| scipy | >=1.10 | 科学计算 |
-| scikit-learn | >=1.3 | 机器学习（Lasso 回归） |
-| torch | >=2.0 | 神经网络模型（v2.x 算法） |
-| redis-py | >=4.0 | Redis 消息中间件 |
-| psutil | >=5.9 | 系统监控 |
-| PyYAML | >=6.0 | YAML 配置文件解析 |
-| joblib | >=1.4 | sklearn 依赖 |
-| Cython | >=3.0 | 编译 .py → .so（仅 build 需要） |
-
-### 一键安装
+## 2. 一键安装
 
 ```bash
-pip install numpy scipy scikit-learn redis psutil PyYAML joblib Cython
+# 克隆项目
+git clone https://github.com/OpenTraffic-Team/opentraffic-tsc-engine
+cd opentraffic-tsc-engine
 
-# PyTorch (CPU 版，约 200MB)
-pip install torch --index-url https://download.pytorch.org/whl/cpu
+# 安装核心依赖 + 算法包
+pip install .
 ```
 
-> **注意:** 如果使用 GPU 版 PyTorch，请根据 CUDA 版本选择对应安装命令：
+这会自动安装以下 Python 依赖：
+
+| 包名 | 用途 |
+|------|------|
+| numpy | 数值计算 |
+| scipy | 科学计算 |
+| scikit-learn | 机器学习（Lasso 回归） |
+| torch | 神经网络模型（v2.x 算法） |
+| redis-py | Redis 消息中间件 |
+| psutil | 系统监控 |
+| PyYAML | YAML 配置文件解析 |
+| joblib | sklearn 依赖 |
+
+> **注意:** PyTorch 默认安装 CPU 版本。如需 GPU 版本，请先手动安装：
 > ```bash
-# CUDA 11.8
-pip install torch --index-url https://download.pytorch.org/whl/cu118
-# CUDA 12.1
-pip install torch --index-url https://download.pytorch.org/whl/cu121
-```
+> # CUDA 11.8
+> pip install torch --index-url https://download.pytorch.org/whl/cu118
+> # CUDA 12.1
+> pip install torch --index-url https://download.pytorch.org/whl/cu121
+> ```
 
 ## 3. CityFlow 仿真引擎 (可选)
 
-CityFlow 是 C++ 编写的交通流仿真器，需要从源码编译。
+CityFlow 是 C++ 编写的交通流仿真器，需要 CMake + Boost。
 
 ```bash
-# 安装依赖
+# 安装系统依赖
 sudo apt-get install -y cmake build-essential libboost-all-dev
 
-# 克隆并编译
-git clone https://github.com/cityflow-project/CityFlow.git
-cd CityFlow
-pip install .
+# 安装 CityFlow Python 包
+pip install ./CityFlow/
 ```
 
 > 如果不想安装 CityFlow，`test_sdk_cityflow.py` 会自动使用内置 Mock 引擎。
@@ -85,4 +84,13 @@ python test_sdk_cityflow.py --steps 3600 --fixed
 
 预期输出：所有测试正常完成，无 ModuleNotFoundError。
 
+## 6. 开发模式安装
+ 
+如果需要修改源码，使用可编辑模式安装：
+
+```bash
+pip install -e ".[dev]"
+```
+
+这会以开发模式安装，修改 `.py` 文件后无需重新安装。同时安装开发依赖（pytest、Cython 等）。
 

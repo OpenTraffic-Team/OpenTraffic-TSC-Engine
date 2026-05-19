@@ -31,7 +31,6 @@
 - [:mechanical_arm: SDK 使用](#mechanical_arm-sdk-使用)
   - [:books: API 参考](#books-api-参考)
   - [:notebook: 输入/输出格式](#notebook-输入输出格式)
-- [:hammer_and_wrench: 编译部署](#hammer_and_wrench-编译部署)
 - [:question: 常见问题](#question-常见问题)
 - [:heart: 致谢](#heart-致谢)
 
@@ -51,19 +50,17 @@
 git clone https://github.com/OpenTraffic-Team/opentraffic-tsc-engine
 cd opentraffic-tsc-engine
 
-# 核心依赖（必装）
-pip install numpy scipy scikit-learn redis psutil PyYAML Cython
-
-# PyTorch（算法模型需要）
-pip install torch --index-url https://download.pytorch.org/whl/cpu
+# 一键安装（Python 包 + 所有依赖）
+pip install .
 ```
+
+> PyTorch 默认安装 CPU 版。如需 GPU 版，先执行 `pip install torch --index-url https://download.pytorch.org/whl/cu118`
 
 ### 安装 CityFlow（可选）
 
 ```bash
-# 源码安装（项目已内置 CityFlow）
-cd CityFlow
-pip install .
+# 源码安装仿真引擎（项目内置，需 CMake + Boost）
+pip install ./CityFlow/
 ```
 
 > 详细安装步骤见 [INSTALL.md](INSTALL.md)
@@ -259,10 +256,55 @@ phase = algo.take_action(state, env_state)
 
 ### :notebook: 输入/输出格式
 
-**state（车辆数据）** — 支持两种格式：
+> **关键流程**：原始传感器数据（`recognitionSnap` / CityFlow lane 格式）**必须先经过特征提取转换**为 `vehicle_map` 格式，才能被算法消费。算法内部的 `AdvancedV1.algorithm_control()` 直接读取 `vehicle_map["waiting_vehicle"]` 和 `vehicle_map["running_vehicle"]`，跳过转换会导致 `KeyError`。
+
+---
+
+#### 数据转换管线
+
+```
+原始传感器数据                       特征提取转换                          算法输入
+────────────────────────────────────────────────────────────────────────────────────
+
+[生产环境] recognitionSnap 格式
+{intersection_id: {
+  recognitionSnap[road_X]: {         FeatureExtract                vehicle_map = {
+    vehicles: [{id, lane,           .convert_cur_state()            running_vehicle: {WE: n, EW: n, ...},
+     speed, type}]                   ──────────────►                waiting_vehicle: {WE: n, EW: n, ...},
+  },                                 解析传感器配置                   running_person:  {S: n, W: n, ...},
+  sensor_status: {...},              车道→相位映射                   lane_queue_length: [...],
+  cameraState: {}                    车辆归类(运行/等待)              num_in_deg: [...],
+}}                                   按行进方向分组                   vehicle_lane_to_phase: {...},
+                                                                   timestamp: ...,
+                                                                   cameraState: {...}
+                                                                 }
+
+[CityFlow 仿真] lane→vehicle 格式
+{intersection_id: {
+  lane_id: [v1, v2, ...]            FeatureExtract                vehicle_map = {
+}                                    .convert_cur_state_cf()        running_vehicle: {WE: n, EW: n, ...},
+vehicles = {                         ──────────────►                waiting_vehicle: {WE: n, EW: n, ...}
+  v1: {speed, running},                                             }
+  v2: {speed, running},
+}
+```
+
+##### 转换函数调用时机
+
+| 运行模式 | 转换调用位置 | 说明 |
+|---------|-------------|------|
+| **生产模式** (`take_action_to_redis`) | `AdvancedControl.take_action_to_redis()` 内部自动调用 `convert_cur_state()` | 从 Redis 拉到 origin_state 后立即转换，再传给 `take_action()` |
+| **CityFlow 仿真** | `SimulationAdapter.step()` 内部调用 `convert_cur_state_cf()` | 适配器层自动完成转换 |
+| **直接调用 `take_action()`** | **不会自动转换** — 调用方必须预先转换 | 这是最常出错的场景，见下方示例 |
+
+---
+
+#### 格式一：CityFlow 仿真格式（输入）
 
 <details>
-<summary><b>格式一：CityFlow 仿真格式</b></summary>
+<summary><b>CityFlow 原始格式 → 转换后格式</b></summary>
+
+**原始数据（传入 adapter/sdk）：**
 
 ```python
 state = {
@@ -277,10 +319,31 @@ vehicles = {
     "v2": {"speed": 3.0, "running": "1"},
 }
 ```
+
+**经 `convert_cur_state_cf()` 转换后（传入 `take_action()`）：**
+
+```python
+state = {
+    "HHL_QHDD": {
+        "running_vehicle": {"WE": 0, "EW": 0, "WN": 0, "ES": 0,
+                            "NS": 0, "SN": 0, "NE": 0, "SW": 0},
+        "waiting_vehicle": {"WE": 0, "EW": 0, "WN": 0, "ES": 0,
+                            "NS": 0, "SN": 0, "NE": 0, "SW": 0}
+    }
+}
+```
+
+> CityFlow 路径下，`SimulationAdapter.step()` 会自动调用 `convert_cur_state_cf()`，用户无需手动转换。
 </details>
 
+---
+
+#### 格式二：生产环境 recognitionSnap 格式（输入）
+
 <details>
-<summary><b>格式二：生产环境格式</b>（recognitionSnap 传感器数据）</summary>
+<summary><b>recognitionSnap 原始格式（传感器数据）</b></summary>
+
+这是从 Redis/传感器直接获取的原始数据格式：
 
 ```python
 state = {
@@ -296,9 +359,125 @@ state = {
     }
 }
 ```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `recognitionSnap[road_id]` | dict | **必须以 `recognitionSnap[` 开头**，`road_id` 需与传感器配置中的道路 ID 匹配 |
+| `recognitionSnap[road_id].vehicles` | list | 车辆列表，每项含 `id`, `lane`, `speed`（数组）, `type`（`"vehicle"` 或 `"person"`） |
+| `recognitionSnap[road_id].timestamp` | int | 传感器时间戳 |
+| `sensor_status` | dict | `tirStatus[road_id]` → 传感器故障状态（空 dict 表示正常） |
+| `cameraState` | dict | 相机状态（空 dict 表示正常） |
 </details>
 
-**env_state（信号机状态）**
+<details>
+<summary><b>经 convert_cur_state() 转换后的 vehicle_map 格式</b></summary>
+
+**这是传入 `take_action()` 时 `state[intersection_id]` 实际需要的格式：**
+
+```python
+state = {
+    "XML_CNL": {
+        "running_vehicle": {
+            "WE": 0, "EW": 1, "WN": 0, "ES": 0,
+            "NS": 0, "SN": 0, "NE": 0, "SW": 0,
+            "WW": 0, "EE": 0, "NN": 0, "SS": 0
+        },
+        "waiting_vehicle": {
+            "WE": 0, "EW": 0, "WN": 0, "ES": 0,
+            "NS": 0, "SN": 0, "NE": 0, "SW": 0,
+            "WW": 0, "EE": 0, "NN": 0, "SS": 0
+        },
+        "running_person": {"S": 0, "W": 0, "N": 0, "E": 0},
+        "lane_queue_length": [],       # 各车道排队长度（v3 算法）
+        "num_in_deg": [],              # 车道四等分等待车辆数（v3 算法）
+        "vehicle_lane_to_phase": {},   # 车道→车辆列表映射
+        "timestamp": 1700000000,
+        "cameraState": {}
+    }
+}
+```
+
+**字段说明：**
+
+| 字段 | 说明 |
+|------|------|
+| `running_vehicle` | 按行进方向（WE/EW/NS/SN/...）统计的**运行中**车辆数（速度 > `MIN_RUNNING_SPEED`） |
+| `waiting_vehicle` | 按行进方向统计的**等待中**车辆数（速度 <= `MIN_RUNNING_SPEED`） |
+| `running_person` | 按方向统计的行人数量 |
+| `lane_queue_length` | 每条进口道的排队长度（仅 v3） |
+| `num_in_deg` | 车道按长度四等分后各段等待车辆数（仅 v3） |
+| `vehicle_lane_to_phase` | 每条车道上的车辆对象列表（用于 v3 特征提取） |
+| `timestamp` | 传感器数据中最大的时间戳 |
+| `cameraState` | 各传感器的故障状态 |
+
+> **方向编码含义**：两位字母表示 from→to，如 `WE` = 西→东（直行），`WN` = 西→北（左转），`SW` = 南→西（右转）。
+</details>
+
+---
+
+#### 直接调用 `take_action()` 的正确方式
+
+直接调用 `take_action()` 时，**必须先将原始数据通过 `convert_cur_state()` 转换**。生产模式中这一步在 `take_action_to_redis()` 内部自动完成，但直接调用不会。
+
+**错误用法（缺少转换，会 KeyError 崩溃）：**
+
+```python
+algo = AdvancedControl(test=True, config_path="config/test_net.json")
+
+# 原始 recognitionSnap 数据
+raw_state = {
+    "XML_CNL": {
+        "recognitionSnap[road_1]": {
+            "vehicles": [{"id": "v1", "lane": "XML_CNL_N_0", "speed": [5.0], "type": "vehicle"}]
+        }
+    }
+}
+
+# ❌ 直接传入原始数据 — state["XML_CNL"] 中没有 "waiting_vehicle" 键，
+#    AdvancedV1.algorithm_control() 会抛出 KeyError
+phase = algo.take_action(raw_state, env_state)
+```
+
+**正确用法：**
+
+```python
+algo = AdvancedControl(test=True, config_path="config/test_net.json")
+
+raw_state = {
+    "XML_CNL": {
+        "recognitionSnap[road_1]": {
+            "vehicles": [{"id": "v1", "lane": "XML_CNL_N_0", "speed": [5.0], "type": "vehicle"}]
+        },
+        "sensor_status": {"tirStatus[road_1]": {}},
+        "cameraState": {}
+    }
+}
+
+# ✅ 先转换，再调用
+vehicle_map = algo.convert_cur_state(raw_state)
+state = {algo.config.INTERSECTION: vehicle_map}
+
+phase = algo.take_action(state, env_state)
+```
+
+---
+
+#### 传感器配置与数据对齐
+
+`FeatureExtract.convert_cur_state()` 依赖**传感器配置**来解析 `recognitionSnap` 数据：
+
+- `recognitionSnap[road_id]` 中的 `road_id` 必须与传感器配置中某条道路（`roads[].id`）或人行道（`crosswalks[].id`）匹配
+- 如果没有任何匹配，对应数据会被静默跳过（不会报错，但车辆数据全部丢失）
+- `vehicle["lane"]` 必须与算法配置中的 `lane_to_phase` 键名匹配，否则该车辆被跳过
+- 传感器配置通过以下方式加载：
+  - **生产模式**：从 Redis 读取 `sensorConfig` 键
+  - **测试模式**：使用 `DEFAULT_SENSOR_CONF`（`algorithms/utils/config.py`）或通过 `sensor_cnf` 参数传入
+
+---
+
+#### env_state（信号机状态）
 
 ```python
 env_state = {
@@ -311,7 +490,7 @@ env_state = {
 }
 ```
 
-**返回值**
+#### 返回值
 
 ```python
 # take_action() 返回值：
@@ -328,14 +507,6 @@ class DecisionResult:
 ```
 
 <br/>
-
-## :hammer_and_wrench: 编译部署
-
-```bash
-cd build
-bash build.sh          # x86_64 编译，生成 algorithms.tar.gz
-bash build_arm.sh      # ARM64 交叉编译
-```
 
 <br/>
 
