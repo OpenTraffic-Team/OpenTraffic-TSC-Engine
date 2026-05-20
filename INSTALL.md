@@ -45,14 +45,18 @@ pip install .
 
 ## 3. CityFlow 仿真引擎 (可选)
 
-CityFlow 是 C++ 编写的交通流仿真器，需要 CMake + Boost。
+CityFlow 是 C++ 编写的交通流仿真器，需要自行安装。
+
+参考 [CityFlow 官方安装指南](https://cityflow.readthedocs.io/en/latest/install.html)：
 
 ```bash
-# 安装系统依赖
-sudo apt-get install -y cmake build-essential libboost-all-dev
+# 1. 安装编译依赖
+sudo apt update && sudo apt install -y build-essential cmake
 
-# 安装 CityFlow Python 包
-pip install ./CityFlow/
+# 2. 克隆并安装 CityFlow
+git clone https://github.com/cityflow-project/CityFlow.git
+cd CityFlow
+pip install .
 ```
 
 > 如果不想安装 CityFlow，`test_sdk_cityflow.py` 会自动使用内置 Mock 引擎。

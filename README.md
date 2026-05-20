@@ -58,10 +58,7 @@ pip install .
 
 ### 安装 CityFlow（可选）
 
-```bash
-# 源码安装仿真引擎（项目内置，需 CMake + Boost）
-pip install ./CityFlow/
-```
+参考 [CityFlow 官方安装指南](https://cityflow.readthedocs.io/en/latest/install.html) 自行安装。
 
 > 详细安装步骤见 [INSTALL.md](INSTALL.md)
 
