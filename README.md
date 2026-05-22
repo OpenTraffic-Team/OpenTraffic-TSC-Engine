@@ -1,3 +1,9 @@
+<div align="right">
+
+**中文** | [**English**](README_EN.md)
+
+</div>
+
 <div align="center">
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](LICENSE)
