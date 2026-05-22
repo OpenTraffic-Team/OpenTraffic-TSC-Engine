@@ -1,6 +1,6 @@
 <div align="right">
 
-**中文** | [**English**](README_EN.md)
+[**中文**](README_CN.md) | **English**
 
 </div>
 
@@ -13,103 +13,103 @@
 
 </div>
 
-### OpenTraffic — 面向智能交通信号控制的开源 SDK。
+### OpenTraffic — An open-source SDK for intelligent traffic signal control.
 <br/>
 
 > **GitHub: https://github.com/OpenTraffic-Team/opentraffic-tsc-engine**
 
 <br/>
 
-## 🌟 目录
+## 🌟 Table of Contents
 
-- [:rocket: 快速开始](#rocket-快速开始)
-  - [环境要求](#环境要求)
-  - [安装依赖](#安装依赖)
-  - [安装 CityFlow（可选）](#安装-cityflow可选)
-- [:pencil: 配置说明](#pencil-配置说明)
-  - [路口配置](#路口配置)
-  - [CityFlow 引擎配置](#cityflow-引擎配置)
-  - [Redis / MQ 配置](#redis--mq-配置)
-- [:fire: 运行模式](#fire-运行模式)
-  - [:ledger: 模式一 — 最简测试（无外部依赖）](#ledger-模式一--最简测试无外部依赖)
-  - [:ledger: 模式二 — CityFlow 仿真](#ledger-模式二--cityflow-仿真)
-  - [:ledger: 模式三 — Redis 生产模式](#ledger-模式三--redis-生产模式)
-- [:mechanical_arm: SDK 使用](#mechanical_arm-sdk-使用)
-  - [:books: API 参考](#books-api-参考)
-  - [:notebook: 输入/输出格式](#notebook-输入输出格式)
-- [:question: 常见问题](#question-常见问题)
-- [:heart: 致谢](#heart-致谢)
+- [:rocket: Quick Start](#rocket-quick-start)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Install CityFlow (optional)](#install-cityflow-optional)
+- [:pencil: Configuration](#pencil-configuration)
+  - [Intersection Configuration](#intersection-configuration)
+  - [CityFlow Engine Configuration](#cityflow-engine-configuration)
+  - [Redis / MQ Configuration](#redis--mq-configuration)
+- [:fire: Run Modes](#fire-run-modes)
+  - [:ledger: Mode 1 — Minimal Test (no external dependencies)](#ledger-mode-1--minimal-test-no-external-dependencies)
+  - [:ledger: Mode 2 — CityFlow Simulation](#ledger-mode-2--cityflow-simulation)
+  - [:ledger: Mode 3 — Redis Production Mode](#ledger-mode-3--redis-production-mode)
+- [:mechanical_arm: SDK Usage](#mechanical_arm-sdk-usage)
+  - [:books: API Reference](#books-api-reference)
+  - [:notebook: Input/Output Formats](#notebook-inputoutput-formats)
+- [:question: FAQ](#question-faq)
+- [:heart: Acknowledgements](#heart-acknowledgements)
 
 <br/>
 
-## :rocket: 快速开始
+## :rocket: Quick Start
 
-### 环境要求
+### Requirements
 
-- **操作系统**: Linux x86_64
+- **OS**: Linux x86_64
 - **Python**: >= 3.8
 
-### 安装依赖
+### Installation
 
 ```bash
-# 克隆项目
+# Clone the project
 git clone https://github.com/OpenTraffic-Team/opentraffic-tsc-engine
 cd opentraffic-tsc-engine
 
-# 一键安装（Python 包 + 所有依赖）
+# One-click install (Python package + all dependencies)
 pip install .
 ```
 
-> PyTorch 默认安装 CPU 版。如需 GPU 版，先执行 `pip install torch --index-url https://download.pytorch.org/whl/cu118`
+> PyTorch installs the CPU version by default. For GPU support, run `pip install torch --index-url https://download.pytorch.org/whl/cu118` first.
 
-### 安装 CityFlow（可选）
+### Install CityFlow (optional)
 
-参考 [CityFlow 官方安装指南](https://cityflow.readthedocs.io/en/latest/install.html) 自行安装。
+Follow the [CityFlow installation guide](https://cityflow.readthedocs.io/en/latest/install.html).
 
-> 详细安装步骤见 [INSTALL.md](INSTALL.md)
+> See [INSTALL.md](INSTALL.md) for detailed steps.
 
 <br/>
 
-## :pencil: 配置说明
+## :pencil: Configuration
 
-### 路口配置
+### Intersection Configuration
 
-路口配置文件（如 `config/test_cityflow.json` 或 `config/test_net.json`）定义了信号控制参数：
+Intersection config files (e.g. `config/test_cityflow.json` or `config/test_net.json`) define signal control parameters:
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 |--------|------|------|
-| `cur_inter_id` | string | 路口标识，如 `"XML_CNL"` |
-| `lane_to_phase` | dict | 车道到相位映射 |
-| `phases` | list | 可用相位名称列表 |
-| `stagePhase` | dict | 相位编号 → 名称映射 |
-| `phase_min_change_time` | dict | 各相位最小绿灯时间（秒） |
-| `phase_max_keep_time` | dict | 各相位最大绿灯时间（秒） |
-| `algo_version` | string | 算法版本（`"v1"`） |
-| `cityflowTest` | int | CityFlow 测试标记（0/1） |
-| `debug` | bool | 调试模式 |
-| `morning_rush` / `evening_rush` | list | 高峰时段 |
+| `cur_inter_id` | string | Intersection ID, e.g. `"XML_CNL"` |
+| `lane_to_phase` | dict | Lane-to-phase mapping |
+| `phases` | list | Available phase names |
+| `stagePhase` | dict | Phase number → name mapping |
+| `phase_min_change_time` | dict | Minimum green time per phase (seconds) |
+| `phase_max_keep_time` | dict | Maximum green time per phase (seconds) |
+| `algo_version` | string | Algorithm version (`"v1"`) |
+| `cityflowTest` | int | CityFlow test flag (0/1) |
+| `debug` | bool | Debug mode |
+| `morning_rush` / `evening_rush` | list | Peak hours |
 
-### CityFlow 引擎配置
+### CityFlow Engine Configuration
 
-位于 `config/cityflow/`：
+Located at `config/cityflow/`:
 
 ```
 config/cityflow/
-├── algo_config.yaml     # 算法参数
-├── config.json          # CityFlow 引擎参数
-├── roadnet.json         # 路网定义
-└── flow.json            # 车流定义（由脚本自动生成）
+├── algo_config.yaml     # Algorithm parameters
+├── config.json          # CityFlow engine parameters
+├── roadnet.json         # Road network definition
+└── flow.json            # Traffic flow definition (auto-generated)
 ```
 
-### Redis / MQ 配置
+### Redis / MQ Configuration
 
-编辑 `config/mq_config.json` 配置生产模式 Redis 连接：
+Edit `config/mq_config.json` for production mode Redis connection:
 
 ```json
 {
-    "redis_addr": "<Redis 服务器 IP>",
+    "redis_addr": "<Redis server IP>",
     "redis_port": 6379,
-    "redis_password": "<密码>",
+    "redis_password": "<password>",
     "intersection": "HHL_QHDD",
     "redis_keys": {
         "origin_state":       {"prefix": "origin_info_state", "db": 1},
@@ -125,164 +125,165 @@ config/cityflow/
 
 <br/>
 
-## :fire: 运行模式
+## :fire: Run Modes
 
-### :books: 相关文件
-* `test_simple.py` — 最简算法测试（无外部依赖）
-* `test_sdk_cityflow.py` — CityFlow 集成仿真测试
-* `run_algorithms_real.py` — 生产模式算法主程序
+### :books: Related Files
+* `test_simple.py` — Minimal algorithm test (no external dependencies)
+* `test_sdk_cityflow.py` — CityFlow integrated simulation test
+* `run_algorithms_real.py` — Production mode algorithm main program
 
-### :ledger: 模式一 — 最简测试（无外部依赖）
+### :ledger: Mode 1 — Minimal Test (no external dependencies)
 
-***适用场景：快速验证算法逻辑，无需任何外部服务。***
+***Use case: quickly verify algorithm logic, no external services required.***
 
 ```bash
 python test_simple.py
 ```
 
-使用合成数据运行算法 — 无需 CityFlow，无需 Redis。
+Runs the algorithm with synthetic data — no CityFlow, no Redis.
 
-### :ledger: 模式二 — CityFlow 仿真
+### :ledger: Mode 2 — CityFlow Simulation
 
-***适用场景：完整的 CityFlow 交通仿真，支持可视化回放。***
+***Use case: full CityFlow traffic simulation with visual replay support.***
 
 ```bash
-# 运行 3600 步自适应算法仿真
+# Run 3600-step adaptive algorithm simulation
 python test_sdk_cityflow.py
 
-# 自定义步数
+# Custom step count
 python test_sdk_cityflow.py --steps 600
 
-# 固定配时对比模式
+# Fixed-time comparison mode
 python test_sdk_cityflow.py --fixed
 ```
 
-仿真结束后，用浏览器打开 `frontend/index.html` 上传回放文件即可查看。
+After simulation, open `frontend/index.html` in a browser and upload the replay file to view.
 
-> 未安装 CityFlow 时会自动使用内置 Mock 引擎，用于纯算法逻辑验证。
+> When CityFlow is not installed, a built-in Mock engine is used automatically for algorithm logic verification.
 
-### :ledger: 模式三 — Redis 生产模式
+### :ledger: Mode 3 — Redis Production Mode
 
-***适用场景：模拟真实生产环境，通过 Redis Stream 传输数据。***
+***Use case: simulate a real production environment with data transferred via Redis Stream.***
 
-**架构：**
+**Architecture:**
 
 ```
 ┌──────────────────────────┐      ┌─────────────────┐
 │ signal_env_simulator.py  │ ──→  │                 │
-│ (模拟信号机推送状态)        │      │   Redis Stream  │
+│ (simulates signal state   │      │   Redis Stream  │
+│  push from controller)   │      │                 │
+└──────────────────────────┘      │  origin_info_   │
+                                  │  state:xxx      │
+┌──────────────────────────┐      │  signal_env_    │
+│ fake_push.py             │ ──→  │  state:xxx      │
+│ (simulates sensor data   │      │  algorithm_     │
+│  push)                   │      │  control:xxx    │
 └──────────────────────────┘      │                 │
-                                  │  origin_info_   │
-┌──────────────────────────┐      │  state:xxx      │
-│ fake_push.py             │ ──→  │  signal_env_    │
-│ (模拟传感器数据推送)        │      │  state:xxx      │
-└──────────────────────────┘      │  algorithm_     │
-                                  │  control:xxx    │
 ┌──────────────────────────┐      │                 │
 │ run_algorithms_real.py   │ ←──→ │                 │
-│ (算法主程序)               │      └─────────────────┘
+│ (algorithm main program) │      └─────────────────┘
 └──────────────────────────┘
 ```
 
-**步骤：**
+**Steps:**
 
 ```bash
-# 1. 初始化 Redis 配置（仅首次）
+# 1. Initialize Redis config (first time only)
 python real_test/setup_redis_config.py
 
-# 2. 启动信号机模拟器
+# 2. Start signal controller simulator
 python real_test/signal_env_simulator.py
 
-# 3. （可选）推送假算法数据
+# 3. (Optional) Push fake algorithm data
 python real_test/fake_push.py --phase 2
 
-# 4. 启动算法主程序
+# 4. Start the algorithm main program
 python run_algorithms_real.py
 ```
 
 <br/>
 
-## :mechanical_arm: SDK 使用
+## :mechanical_arm: SDK Usage
 
-### :books: API 参考
+### :books: API Reference
 
-SDK 提供两层 API：
+The SDK provides two API layers:
 
-| 层级 | 类 | 适用场景 |
+| Layer | Class | Use Case |
 |------|-----|----------|
-| 高层 | `AlgorithmSDK` | 统一接口，自动适配不同模式 |
-| 底层 | `AdvancedControl` | 直接调用，支持 `test=True` 本地测试 |
+| High-level | `AlgorithmSDK` | Unified interface, auto-adapts to different modes |
+| Low-level | `AdvancedControl` | Direct invocation, supports `test=True` for local testing |
 
-**方式一：AlgorithmSDK（推荐）**
+**Option 1: AlgorithmSDK (recommended)**
 
 ```python
 from algorithms_sdk import AlgorithmSDK
 
-# 仿真模式
+# Simulation mode
 sdk = AlgorithmSDK(
     mode="cityflow",
     config_path="config/test_cityflow.json",
     algo_version="v1"
 )
 
-# 执行决策
+# Execute decision
 result = sdk.step(state, env_state)
 
-# 查看指标
+# View metrics
 metrics = sdk.get_metrics()
 
-# 健康检查
+# Health check
 health = sdk.get_health_status()
 
-# 关闭
+# Close
 sdk.close()
 ```
 
-**方式二：AdvancedControl 直接调用**
+**Option 2: AdvancedControl direct invocation**
 
 ```python
 from algorithms_sdk.advanced_control import AdvancedControl
 
-# test=True：本地测试，不连接 Redis
+# test=True: local test, no Redis connection
 algo = AdvancedControl(
     test=True,
     config_path="config/test_net.json"
 )
 
-# 执行决策
+# Execute decision
 phase = algo.take_action(state, env_state)
 
-# 生产模式（连接 Redis）
+# Production mode (with Redis)
 # algo = AdvancedControl(mq_path="config/mq_config.json")
 # phase = algo.take_action_to_redis()
 ```
 
-### :notebook: 输入/输出格式
+### :notebook: Input/Output Formats
 
-> **关键流程**：原始传感器数据（`recognitionSnap` / CityFlow lane 格式）**必须先经过特征提取转换**为 `vehicle_map` 格式，才能被算法消费。算法内部的 `AdvancedV1.algorithm_control()` 直接读取 `vehicle_map["waiting_vehicle"]` 和 `vehicle_map["running_vehicle"]`，跳过转换会导致 `KeyError`。
+> **Critical flow**: Raw sensor data (`recognitionSnap` / CityFlow lane format) **must first be converted via feature extraction** to the `vehicle_map` format before the algorithm can consume it. The internal `AdvancedV1.algorithm_control()` directly reads `vehicle_map["waiting_vehicle"]` and `vehicle_map["running_vehicle"]` — skipping conversion will cause a `KeyError`.
 
 ---
 
-#### 数据转换管线
+#### Data Conversion Pipeline
 
 ```
-原始传感器数据                       特征提取转换                          算法输入
-────────────────────────────────────────────────────────────────────────────────────
+Raw sensor data                      Feature extraction                      Algorithm input
+────────────────────────────────────────────────────────────────────────────────────────────────
 
-[生产环境] recognitionSnap 格式
+[Production] recognitionSnap format
 {intersection_id: {
   recognitionSnap[road_X]: {         FeatureExtract                vehicle_map = {
     vehicles: [{id, lane,           .convert_cur_state()            running_vehicle: {WE: n, EW: n, ...},
      speed, type}]                   ──────────────►                waiting_vehicle: {WE: n, EW: n, ...},
-  },                                 解析传感器配置                   running_person:  {S: n, W: n, ...},
-  sensor_status: {...},              车道→相位映射                   lane_queue_length: [...],
-  cameraState: {}                    车辆归类(运行/等待)              num_in_deg: [...],
-}}                                   按行进方向分组                   vehicle_lane_to_phase: {...},
-                                                                   timestamp: ...,
-                                                                   cameraState: {...}
-                                                                 }
+  },                                 parses sensor config           running_person:  {S: n, W: n, ...},
+  sensor_status: {...},              lane→phase mapping             lane_queue_length: [...],
+  cameraState: {}                    classifies vehicles            num_in_deg: [...],
+}}                                   (running/waiting)              vehicle_lane_to_phase: {...},
+                                     groups by direction            timestamp: ...,
+                                                                    cameraState: {...}
+                                                                  }
 
-[CityFlow 仿真] lane→vehicle 格式
+[CityFlow simulation] lane→vehicle format
 {intersection_id: {
   lane_id: [v1, v2, ...]            FeatureExtract                vehicle_map = {
 }                                    .convert_cur_state_cf()        running_vehicle: {WE: n, EW: n, ...},
@@ -292,22 +293,22 @@ vehicles = {                         ──────────────�
 }
 ```
 
-##### 转换函数调用时机
+##### When Conversion Functions Are Called
 
-| 运行模式 | 转换调用位置 | 说明 |
+| Run Mode | Conversion Location | Notes |
 |---------|-------------|------|
-| **生产模式** (`take_action_to_redis`) | `AdvancedControl.take_action_to_redis()` 内部自动调用 `convert_cur_state()` | 从 Redis 拉到 origin_state 后立即转换，再传给 `take_action()` |
-| **CityFlow 仿真** | `SimulationAdapter.step()` 内部调用 `convert_cur_state_cf()` | 适配器层自动完成转换 |
-| **直接调用 `take_action()`** | **不会自动转换** — 调用方必须预先转换 | 这是最常出错的场景，见下方示例 |
+| **Production** (`take_action_to_redis`) | `AdvancedControl.take_action_to_redis()` internally calls `convert_cur_state()` | Converts right after pulling origin_state from Redis, then passes to `take_action()` |
+| **CityFlow Simulation** | `SimulationAdapter.step()` internally calls `convert_cur_state_cf()` | Adapter layer handles conversion automatically |
+| **Direct `take_action()` call** | **Not automatic** — caller must pre-convert | This is the most common pitfall, see examples below |
 
 ---
 
-#### 格式一：CityFlow 仿真格式（输入）
+#### Format 1: CityFlow Simulation Format (input)
 
 <details>
-<summary><b>CityFlow 原始格式 → 转换后格式</b></summary>
+<summary><b>CityFlow raw format → converted format</b></summary>
 
-**原始数据（传入 adapter/sdk）：**
+**Raw data (passed to adapter/sdk):**
 
 ```python
 state = {
@@ -323,7 +324,7 @@ vehicles = {
 }
 ```
 
-**经 `convert_cur_state_cf()` 转换后（传入 `take_action()`）：**
+**After `convert_cur_state_cf()` conversion (passed to `take_action()`):**
 
 ```python
 state = {
@@ -336,17 +337,17 @@ state = {
 }
 ```
 
-> CityFlow 路径下，`SimulationAdapter.step()` 会自动调用 `convert_cur_state_cf()`，用户无需手动转换。
+> In the CityFlow path, `SimulationAdapter.step()` calls `convert_cur_state_cf()` automatically — no manual conversion needed.
 </details>
 
 ---
 
-#### 格式二：生产环境 recognitionSnap 格式（输入）
+#### Format 2: Production recognitionSnap Format (input)
 
 <details>
-<summary><b>recognitionSnap 原始格式（传感器数据）</b></summary>
+<summary><b>recognitionSnap raw format (sensor data)</b></summary>
 
-这是从 Redis/传感器直接获取的原始数据格式：
+This is the raw data format retrieved directly from Redis/sensors:
 
 ```python
 state = {
@@ -363,21 +364,21 @@ state = {
 }
 ```
 
-**字段说明：**
+**Field descriptions:**
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 |------|------|------|
-| `recognitionSnap[road_id]` | dict | **必须以 `recognitionSnap[` 开头**，`road_id` 需与传感器配置中的道路 ID 匹配 |
-| `recognitionSnap[road_id].vehicles` | list | 车辆列表，每项含 `id`, `lane`, `speed`（数组）, `type`（`"vehicle"` 或 `"person"`） |
-| `recognitionSnap[road_id].timestamp` | int | 传感器时间戳 |
-| `sensor_status` | dict | `tirStatus[road_id]` → 传感器故障状态（空 dict 表示正常） |
-| `cameraState` | dict | 相机状态（空 dict 表示正常） |
+| `recognitionSnap[road_id]` | dict | **Must start with `recognitionSnap[`**, `road_id` must match a road ID in the sensor config |
+| `recognitionSnap[road_id].vehicles` | list | Vehicle list, each containing `id`, `lane`, `speed` (array), `type` (`"vehicle"` or `"person"`) |
+| `recognitionSnap[road_id].timestamp` | int | Sensor timestamp |
+| `sensor_status` | dict | `tirStatus[road_id]` → sensor fault status (empty dict = normal) |
+| `cameraState` | dict | Camera state (empty dict = normal) |
 </details>
 
 <details>
-<summary><b>经 convert_cur_state() 转换后的 vehicle_map 格式</b></summary>
+<summary><b>vehicle_map format after convert_cur_state()</b></summary>
 
-**这是传入 `take_action()` 时 `state[intersection_id]` 实际需要的格式：**
+**This is the actual format required for `state[intersection_id]` when passing to `take_action()`:**
 
 ```python
 state = {
@@ -393,43 +394,43 @@ state = {
             "WW": 0, "EE": 0, "NN": 0, "SS": 0
         },
         "running_person": {"S": 0, "W": 0, "N": 0, "E": 0},
-        "lane_queue_length": [],       # 各车道排队长度（v3 算法）
-        "num_in_deg": [],              # 车道四等分等待车辆数（v3 算法）
-        "vehicle_lane_to_phase": {},   # 车道→车辆列表映射
+        "lane_queue_length": [],       # Queue length per lane (v3)
+        "num_in_deg": [],              # Waiting vehicles in each lane quarter (v3)
+        "vehicle_lane_to_phase": {},   # Lane → vehicle list mapping
         "timestamp": 1700000000,
         "cameraState": {}
     }
 }
 ```
 
-**字段说明：**
+**Field descriptions:**
 
-| 字段 | 说明 |
+| Field | Description |
 |------|------|
-| `running_vehicle` | 按行进方向（WE/EW/NS/SN/...）统计的**运行中**车辆数（速度 > `MIN_RUNNING_SPEED`） |
-| `waiting_vehicle` | 按行进方向统计的**等待中**车辆数（速度 <= `MIN_RUNNING_SPEED`） |
-| `running_person` | 按方向统计的行人数量 |
-| `lane_queue_length` | 每条进口道的排队长度（仅 v3） |
-| `num_in_deg` | 车道按长度四等分后各段等待车辆数（仅 v3） |
-| `vehicle_lane_to_phase` | 每条车道上的车辆对象列表（用于 v3 特征提取） |
-| `timestamp` | 传感器数据中最大的时间戳 |
-| `cameraState` | 各传感器的故障状态 |
+| `running_vehicle` | Count of **running** vehicles by direction (WE/EW/NS/SN/...) — speed > `MIN_RUNNING_SPEED` |
+| `waiting_vehicle` | Count of **waiting** vehicles by direction — speed <= `MIN_RUNNING_SPEED` |
+| `running_person` | Pedestrian count by direction |
+| `lane_queue_length` | Queue length per entry lane (v3 only) |
+| `num_in_deg` | Waiting vehicles in each of the 4 equal-length segments per lane (v3 only) |
+| `vehicle_lane_to_phase` | Vehicle object list per lane (for v3 feature extraction) |
+| `timestamp` | Maximum timestamp from sensor data |
+| `cameraState` | Fault status of each sensor |
 
-> **方向编码含义**：两位字母表示 from→to，如 `WE` = 西→东（直行），`WN` = 西→北（左转），`SW` = 南→西（右转）。
+> **Direction code meaning**: two letters indicate from→to, e.g. `WE` = West→East (through), `WN` = West→North (left turn), `SW` = South→West (right turn).
 </details>
 
 ---
 
-#### 直接调用 `take_action()` 的正确方式
+#### Correct Way to Call `take_action()` Directly
 
-直接调用 `take_action()` 时，**必须先将原始数据通过 `convert_cur_state()` 转换**。生产模式中这一步在 `take_action_to_redis()` 内部自动完成，但直接调用不会。
+When calling `take_action()` directly, you **must first convert raw data via `convert_cur_state()`**. In production mode this is done automatically inside `take_action_to_redis()`, but direct calls will not.
 
-**错误用法（缺少转换，会 KeyError 崩溃）：**
+**Wrong usage (missing conversion, will crash with KeyError):**
 
 ```python
 algo = AdvancedControl(test=True, config_path="config/test_net.json")
 
-# 原始 recognitionSnap 数据
+# Raw recognitionSnap data
 raw_state = {
     "XML_CNL": {
         "recognitionSnap[road_1]": {
@@ -438,12 +439,12 @@ raw_state = {
     }
 }
 
-# ❌ 直接传入原始数据 — state["XML_CNL"] 中没有 "waiting_vehicle" 键，
-#    AdvancedV1.algorithm_control() 会抛出 KeyError
+# ❌ Passing raw data directly — state["XML_CNL"] lacks "waiting_vehicle" key,
+#    AdvancedV1.algorithm_control() will throw KeyError
 phase = algo.take_action(raw_state, env_state)
 ```
 
-**正确用法：**
+**Correct usage:**
 
 ```python
 algo = AdvancedControl(test=True, config_path="config/test_net.json")
@@ -458,7 +459,7 @@ raw_state = {
     }
 }
 
-# ✅ 先转换，再调用
+# ✅ Convert first, then call
 vehicle_map = algo.convert_cur_state(raw_state)
 state = {algo.config.INTERSECTION: vehicle_map}
 
@@ -467,77 +468,77 @@ phase = algo.take_action(state, env_state)
 
 ---
 
-#### 传感器配置与数据对齐
+#### Sensor Configuration & Data Alignment
 
-`FeatureExtract.convert_cur_state()` 依赖**传感器配置**来解析 `recognitionSnap` 数据：
+`FeatureExtract.convert_cur_state()` relies on **sensor configuration** to parse `recognitionSnap` data:
 
-- `recognitionSnap[road_id]` 中的 `road_id` 必须与传感器配置中某条道路（`roads[].id`）或人行道（`crosswalks[].id`）匹配
-- 如果没有任何匹配，对应数据会被静默跳过（不会报错，但车辆数据全部丢失）
-- `vehicle["lane"]` 必须与算法配置中的 `lane_to_phase` 键名匹配，否则该车辆被跳过
-- 传感器配置通过以下方式加载：
-  - **生产模式**：从 Redis 读取 `sensorConfig` 键
-  - **测试模式**：使用 `DEFAULT_SENSOR_CONF`（`algorithms/utils/config.py`）或通过 `sensor_cnf` 参数传入
+- `road_id` in `recognitionSnap[road_id]` must match a road (`roads[].id`) or crosswalk (`crosswalks[].id`) in the sensor config
+- If no match is found, the data is silently skipped (no error, but all vehicle data is lost)
+- `vehicle["lane"]` must match a key in the algorithm config's `lane_to_phase`, otherwise the vehicle is skipped
+- Sensor config is loaded via:
+  - **Production mode**: reads `sensorConfig` key from Redis
+  - **Test mode**: uses `DEFAULT_SENSOR_CONF` (`algorithms/utils/config.py`) or the `sensor_cnf` parameter
 
 ---
 
-#### env_state（信号机状态）
+#### env_state (Signal Controller State)
 
 ```python
 env_state = {
-    "phases": [1, 2],               # 可用相位编号
-    "currentPhase": 1,              # 当前相位编号
-    "phaseTime": 30,                # 当前相位已运行时间（秒）
-    "currentPlan": "1",             # 当前方案
-    "signalCtlStatus": True,        # 信号机是否在控
+    "phases": [1, 2],               # Available phase numbers
+    "currentPhase": 1,              # Current phase number
+    "phaseTime": 30,                # Current phase elapsed time (seconds)
+    "currentPlan": "1",             # Current plan
+    "signalCtlStatus": True,        # Whether controller is in control
     "timestamp": 1700000000.0
 }
 ```
 
-#### 返回值
+#### Return Value
 
 ```python
-# take_action() 返回值：
-phase = 1       # 正常决策：相位编号
-phase = None    # 安全规则未通过 或 异常检测触发
+# take_action() return value:
+phase = 1       # Normal decision: phase number
+phase = None    # Safety rule failed or anomaly detection triggered
 
-# AlgorithmSDK.step() 返回值：
+# AlgorithmSDK.step() return value:
 @dataclass
 class DecisionResult:
-    action: PhaseAction        # 决策动作
-    timestamp: float           # 时间戳
-    inference_time_ms: float   # 推理耗时（毫秒）
-    algorithm_version: str     # 算法版本
+    action: PhaseAction        # Decision action
+    timestamp: float           # Timestamp
+    inference_time_ms: float   # Inference time (milliseconds)
+    algorithm_version: str     # Algorithm version
 ```
 
 <br/>
 
 <br/>
 
-## :question: 常见问题
+## :question: FAQ
 
 <details>
-<summary><b>SO 文件加载失败？</b></summary>
+<summary><b>SO file failed to load?</b></summary>
 
 ```bash
-uname -m                          # 应输出 x86_64
-python -c "import struct; print(struct.calcsize('P')*8)"  # 应输出 64
+uname -m                          # Should output x86_64
+python -c "import struct; print(struct.calcsize('P')*8)"  # Should output 64
 ```
 </details>
 
 <details>
-<summary><b>许可证校验失败？</b></summary>
+<summary><b>License verification failed?</b></summary>
 
-检查系统时间是否正确，确认算法文件有效性。
+Check that the system time is correct and algorithm files are valid.
 </details>
 
 <details>
-<summary><b>CityFlow 未安装？</b></summary>
+<summary><b>CityFlow not installed?</b></summary>
 
-运行 `test_sdk_cityflow.py` 时自动切换到 Mock 引擎模式。
+Running `test_sdk_cityflow.py` will automatically switch to Mock engine mode.
 </details>
 
 <details>
-<summary><b>Redis 连接失败？</b></summary>
+<summary><b>Redis connection failed?</b></summary>
 
 ```bash
 python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>'); print(r.ping())"
@@ -546,11 +547,11 @@ python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>')
 
 <br/>
 
-## :heart: 致谢
+## :heart: Acknowledgements
 
-感谢 [CityFlow](https://github.com/cityflow-project/CityFlow) 提供的开源交通仿真平台！
+Thanks to [CityFlow](https://github.com/cityflow-project/CityFlow) for the open-source traffic simulation platform!
 
-## 🌟 Star 历史
+## 🌟 Star History
 
 <a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
   <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
