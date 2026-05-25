@@ -12,14 +12,7 @@ from .exceptions import SDKError, LicenseExpiredError, SDKInitError, AlgorithmEr
 from .types import Mode, DecisionResult, PhaseAction, MetricsData, HealthStatus
 
 
-def check_license():
-    """校验许可证"""
-    try:
-        from algorithms.license_check import verify_license
-        return verify_license()
-    except ImportError:
-        print("    [警告] 许可证模块未找到，跳过校验")
-        return True
+
 
 
 def create_sdk(mode: str = "cityflow", **kwargs):
@@ -80,12 +73,6 @@ class AlgorithmSDK:
     def _initialize(self, **kwargs):
         """初始化SDK"""
         try:
-            # 许可证检查
-            print("--- [安全系统] 正在校验授权... ---")
-            if not check_license():
-                raise LicenseExpiredError("许可证校验失败")
-            print("✅ 授权验证通过。")
-
             # 根据模式初始化
             if self.mode == Mode.CITYFLOW or self.mode == Mode.SUMO:
                 self._initialize_simulation(**kwargs)

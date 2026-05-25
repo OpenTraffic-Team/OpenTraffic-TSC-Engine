@@ -215,7 +215,13 @@ def run_simulation(total_steps: int = 3600, fixed_timing: bool = False):
     # 统计用
     all_vehicle_ids = set()
     wait_accum      = 0
+    max_queue       = 0
     switch_log      = []
+
+    # 单车追踪（等待时间 + 停车次数）
+    vehicle_wait_steps = {}      # vid → 累计等待步数
+    vehicle_last_state = {}      # vid → 上一步是否在等待
+    vehicle_stop_count = {}      # vid → 停车次数
 
     mode_label = "固定配时（对比模式）" if fixed_timing else "自适应算法控制"
     print(f"\n[3] 开始仿真：{mode_label}，共 {total_steps} 步")
@@ -228,7 +234,31 @@ def run_simulation(total_steps: int = 3600, fixed_timing: bool = False):
 
         # 统计
         all_vehicle_ids |= set(eng.get_vehicles(True))
-        wait_accum      += sum(eng.get_lane_waiting_vehicle_count().values())
+        current_waiting = sum(eng.get_lane_waiting_vehicle_count().values())
+        wait_accum      += current_waiting
+        max_queue        = max(max_queue, current_waiting)
+
+        # 单车追踪：等待时间和停车次数
+        lane_vehicles = eng.get_lane_vehicles()
+        waiting_lanes = {lane for lane, cnt in eng.get_lane_waiting_vehicle_count().items() if cnt > 0}
+        vehicles_in_waiting = set()
+        for lane in waiting_lanes:
+            vehicles_in_waiting |= set(lane_vehicles.get(lane, []))
+
+        for vid in vehicles_in_waiting:
+            vehicle_wait_steps[vid] = vehicle_wait_steps.get(vid, 0) + 1
+            if vid not in vehicle_last_state:
+                vehicle_last_state[vid] = False
+            if not vehicle_last_state[vid]:
+                vehicle_stop_count[vid] = vehicle_stop_count.get(vid, 0) + 1  # 新停车事件
+
+        # 更新所有车辆的上一步状态
+        for vid in vehicles_in_waiting:
+            vehicle_last_state[vid] = True
+        # 不在等待的车辆标记为 False
+        for vid in list(vehicle_last_state.keys()):
+            if vid not in vehicles_in_waiting:
+                vehicle_last_state[vid] = False
 
         # ── 固定配时模式 ──────────────────────────────────────────────
         if fixed_timing:
@@ -318,14 +348,62 @@ def run_simulation(total_steps: int = 3600, fixed_timing: bool = False):
             _print_status(sim_time, last_phase, phase_time, transition_cnt, eng)
 
     # ── 4. 仿真结束统计 ──────────────────────────────────────────────────
+    avg_travel     = eng.get_average_travel_time()
+    still_in_sim   = len(eng.get_vehicles(True))
+    total_spawned  = len(all_vehicle_ids)
+    completed      = total_spawned - still_in_sim
+    avg_queue      = wait_accum / total_steps
+    throughput     = completed / total_steps
+    free_flow      = 18.0   # 300m / 16.67m/s ≈ 18s（单路段自由流时间）
+    avg_delay      = avg_travel - free_flow if avg_travel > free_flow else 0.0
+
+    # 单车指标
+    total_wait_steps = sum(vehicle_wait_steps.values())
+    avg_wait_time    = total_wait_steps / total_spawned if total_spawned > 0 else 0.0
+    total_stops      = sum(vehicle_stop_count.values())
+    avg_stops        = total_stops / completed if completed > 0 else 0.0
+    stopped_vehicles = sum(1 for v in vehicle_stop_count.values() if v > 0)
+    stop_rate        = stopped_vehicles / total_spawned * 100 if total_spawned > 0 else 0.0
+
+    result = {
+        "mode":            mode_label,
+        "fixed_timing":    fixed_timing,
+        "total_steps":     total_steps,
+        "total_spawned":   total_spawned,
+        "completed":       completed,
+        "still_in_sim":    still_in_sim,
+        "avg_travel":      avg_travel,
+        "avg_delay":       avg_delay,
+        "avg_queue":       avg_queue,
+        "max_queue":       max_queue,
+        "avg_wait_time":   avg_wait_time,
+        "avg_stops":       avg_stops,
+        "stop_rate":       stop_rate,
+        "total_stops":     total_stops,
+        "throughput":      throughput,
+        "phase_switches":  len(switch_log),
+    }
+
     print("-" * 65)
-    print(f"\n[4] 仿真结束")
-    print(f"    总步数         : {total_steps} 步（{total_steps}s）")
-    print(f"    生成车辆总数   : {len(all_vehicle_ids)} 辆")
-    print(f"    平均通行时间   : {eng.get_average_travel_time():.1f} 秒/辆")
-    print(f"    累计等待车辆次 : {wait_accum}")
+    print(f"\n[4] 仿真结束 — {mode_label}")
+    print(f"  ┌─────────────────────────────────────────────────────┐")
+    print(f"  │ 指标                    数值                        │")
+    print(f"  ├─────────────────────────────────────────────────────┤")
+    print(f"  │ 仿真步数                {total_steps:>6d} 步 ({total_steps}s)              │")
+    print(f"  │ 生成车辆总数            {total_spawned:>6d} 辆                      │")
+    print(f"  │ 完成通行车辆            {completed:>6d} 辆                      │")
+    print(f"  │ 仍在路网车辆            {still_in_sim:>6d} 辆                      │")
+    print(f"  │ 平均通行时间            {avg_travel:>8.1f} 秒/辆                  │")
+    print(f"  │ 平均延误                {avg_delay:>8.1f} 秒/辆                  │")
+    print(f"  │ 平均排队车辆            {avg_queue:>8.1f} 辆/步                  │")
+    print(f"  │ 最大排队车辆            {max_queue:>6d} 辆                      │")
+    print(f"  │ 平均等待时间            {avg_wait_time:>8.1f} 秒/辆                  │")
+    print(f"  │ 平均停车次数            {avg_stops:>8.1f} 次/辆                  │")
+    print(f"  │ 停车率                  {stop_rate:>8.1f} %                      │")
+    print(f"  │ 吞吐量                  {throughput:>8.3f} 辆/秒                  │")
     if not fixed_timing:
-        print(f"    相位切换次数   : {len(switch_log)} 次")
+        print(f"  │ 相位切换次数            {len(switch_log):>6d} 次                      │")
+    print(f"  └─────────────────────────────────────────────────────┘")
 
     # ── 5. 回放说明 ──────────────────────────────────────────────────────
     print(f"\n[5] 回放文件已写入:")
@@ -336,6 +414,7 @@ def run_simulation(total_steps: int = 3600, fixed_timing: bool = False):
     print("      用浏览器打开  frontend/index.html")
     print("      点击 'Roadnet File' 上传  frontend/web/roadnet_log.json")
     print("      点击 'Replay File'  上传  frontend/web/replay.txt")
+    return result
     print("      点击 'Start' 开始播放")
 
 
@@ -350,8 +429,76 @@ def _print_status(sim_time, phase_num, phase_time, trans_cnt, eng):
 # ─── 入口 ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CityFlow × OpenTraffic 集成仿真测试")
-    parser.add_argument("--steps", type=int,       default=3600, help="仿真步数（秒），默认3600")
-    parser.add_argument("--fixed", action="store_true",          help="固定配时对比模式")
+    parser.add_argument("--steps", type=int,       default=3600,  help="仿真步数（秒），默认3600")
+    parser.add_argument("--fixed", action="store_true",           help="固定配时对比模式")
+    parser.add_argument("--compare", action="store_true",        help="同时运行自适应和固定配时，输出对比报告")
     args = parser.parse_args()
 
-    run_simulation(total_steps=args.steps, fixed_timing=args.fixed)
+    if args.compare:
+        # ── 对比模式：分别运行两种模式并对比 ─────────────────────
+        print("\n" + "=" * 65)
+        print("  对比模式：自适应算法 vs 固定配时")
+        print("=" * 65)
+
+        # 相同车流 seed，保证公平对比
+        seed = int(time.time()) % 100000
+
+        print("\n\033[36m>>> 运行自适应算法...\033[0m")
+        random.seed(seed)
+        adaptive = run_simulation(total_steps=args.steps, fixed_timing=False)
+
+        print("\n\033[36m>>> 运行固定配时...\033[0m")
+        random.seed(seed)
+        fixed = run_simulation(total_steps=args.steps, fixed_timing=True)
+
+        # ── 对比表 ────────────────────────────────────────────
+        def delta_pct(adaptive_val, fixed_val):
+            """改善百分比，正数=自适应更优"""
+            if fixed_val == 0:
+                return 0
+            return (fixed_val - adaptive_val) / abs(fixed_val) * 100
+
+        print("\n" + "=" * 65)
+        print("  算法对比报告")
+        print("=" * 65)
+        print(f"  {'指标':<20}  {'自适应':>10}  {'固定配时':>10}  {'改善':>10}")
+        print(f"  {'-'*20}  {'-'*10}  {'-'*10}  {'-'*10}")
+
+        rows = [
+            ("完成通行车辆(↑)",   adaptive["completed"],      fixed["completed"],       1),
+            ("仍在路网车辆(↓)",   adaptive["still_in_sim"],   fixed["still_in_sim"],   -1),
+            ("平均通行时间(↓)",   f"{adaptive['avg_travel']:.1f}s", f"{fixed['avg_travel']:.1f}s", -1),
+            ("平均延误(↓)",       f"{adaptive['avg_delay']:.1f}s",  f"{fixed['avg_delay']:.1f}s",  -1),
+            ("平均排队车辆(↓)",   f"{adaptive['avg_queue']:.1f}",   f"{fixed['avg_queue']:.1f}",   -1),
+            ("最大排队车辆(↓)",   adaptive["max_queue"],       fixed["max_queue"],      -1),
+            ("车辆平均等待(↓)",   f"{adaptive['avg_wait_time']:.1f}s", f"{fixed['avg_wait_time']:.1f}s", -1),
+            ("平均停车次数(↓)",   f"{adaptive['avg_stops']:.1f}",    f"{fixed['avg_stops']:.1f}",    -1),
+            ("停车率(↓)",         f"{adaptive['stop_rate']:.1f}%",   f"{fixed['stop_rate']:.1f}%",   -1),
+            ("吞吐量(↑)",         f"{adaptive['throughput']:.3f}",   f"{fixed['throughput']:.3f}",    1),
+            ("相位切换次数",      adaptive["phase_switches"],   fixed["phase_switches"],  0),
+        ]
+
+        for label, a_val, f_val, direction in rows:
+            if isinstance(a_val, str):
+                print(f"  {label:<20}  {a_val:>10}  {f_val:>10}  {'—':>10}")
+            else:
+                d = delta_pct(a_val, f_val) if direction != 0 else 0
+                if direction > 0:
+                    sign = "+" if d >= 0 else ""
+                    symbol = "📈" if d > 5 else ("📉" if d < -5 else "➖")
+                elif direction < 0:
+                    sign = "+" if d >= 0 else ""
+                    symbol = "📈" if d > 5 else ("📉" if d < -5 else "➖")
+                else:
+                    sign = ""
+                    symbol = ""
+                print(f"  {label:<20}  {a_val:>10}  {f_val:>10}  {symbol} {sign}{d:.1f}%" if direction != 0 else f"  {label:<20}  {a_val:>10}  {f_val:>10}  {'—':>10}")
+
+        print(f"  {'-'*20}  {'-'*10}  {'-'*10}  {'-'*10}")
+        print(f"  (↑)越大越好  (↓)越小越好  📈显著改善  📉显著退步  ➖基本持平")
+        print()
+
+    elif args.fixed:
+        run_simulation(total_steps=args.steps, fixed_timing=True)
+    else:
+        run_simulation(total_steps=args.steps, fixed_timing=False)

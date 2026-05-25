@@ -14,6 +14,11 @@
 </div>
 
 ### OpenTraffic — An open-source SDK for intelligent traffic signal control.
+
+<div align="center">
+  <img src="docs/image/frame_en.png" alt="Architecture" width="720">
+</div>
+
 <br/>
 
 > **GitHub: https://github.com/OpenTraffic-Team/opentraffic-tsc-engine**
@@ -30,6 +35,7 @@
   - [Intersection Configuration](#intersection-configuration)
   - [CityFlow Engine Configuration](#cityflow-engine-configuration)
   - [Redis / MQ Configuration](#redis--mq-configuration)
+  - [Configuration Reference](docs/CONFIG_GUIDE.md)
 - [:fire: Run Modes](#fire-run-modes)
   - [:ledger: Mode 1 — Minimal Test (no external dependencies)](#ledger-mode-1--minimal-test-no-external-dependencies)
   - [:ledger: Mode 2 — CityFlow Simulation](#ledger-mode-2--cityflow-simulation)
@@ -37,6 +43,7 @@
 - [:mechanical_arm: SDK Usage](#mechanical_arm-sdk-usage)
   - [:books: API Reference](#books-api-reference)
   - [:notebook: Input/Output Formats](#notebook-inputoutput-formats)
+- [:bar_chart: Evaluation Metrics](#bar_chart-evaluation-metrics)
 - [:question: FAQ](#question-faq)
 - [:heart: Acknowledgements](#heart-acknowledgements)
 
@@ -122,6 +129,8 @@ Edit `config/mq_config.json` for production mode Redis connection:
     }
 }
 ```
+
+> For full configuration parameter details, see [Configuration Guide](docs/CONFIG_GUIDE.md)
 
 <br/>
 
@@ -511,6 +520,127 @@ class DecisionResult:
 ```
 
 <br/>
+
+<br/>
+
+## :bar_chart: Evaluation Metrics
+
+Run the CityFlow simulation test to evaluate algorithm performance:
+
+```bash
+# Adaptive algorithm (default)
+python test_sdk_cityflow.py --steps 3600
+
+# Fixed-time baseline for comparison
+python test_sdk_cityflow.py --fixed --steps 3600
+```
+
+### Output Metrics
+
+| Metric | Description | Formula |
+|--------|-------------|---------|
+| **Total Vehicles** | All vehicles spawned during simulation | — |
+| **Completed Vehicles** | Vehicles that finished their route | — |
+| **Still in Network** | Vehicles not yet exited at simulation end | — |
+| **Avg Travel Time** | Mean time from spawn to exit (seconds) | `sum(travel_times) / completed` |
+| **Avg Delay** | Extra time vs. free-flow (seconds) | `avg_travel_time − free_flow_time` |
+| **Avg Queue Length** | Mean waiting vehicles per step | `sum(waiting_vehicles) / total_steps` |
+| **Max Queue Length** | Peak waiting vehicles during simulation | `max(current_waiting)` |
+| **Avg Wait Time** | Mean time each vehicle spent waiting (seconds) | `sum(vehicle_wait_steps) / total_spawned` |
+| **Avg Stops** | Mean stops per completed vehicle | `total_stops / completed` |
+| **Stop Rate** | Percentage of vehicles that stopped at least once | `stopped_vehicles / total_spawned × 100%` |
+| **Throughput** | Vehicles completed per second | `completed / total_steps` |
+| **Phase Switches** | Total signal phase changes (adaptive only) | — |
+
+### Sample Output
+
+```
+[4] Simulation Complete — Adaptive Algorithm Control
+  ┌─────────────────────────────────────────────────────┐
+  │ Metric                         Value                │
+  ├─────────────────────────────────────────────────────┤
+  │ Steps                           3600 steps (3600s)  │
+  │ Total Vehicles                   875 vehicles        │
+  │ Completed Vehicles               832 vehicles        │
+  │ Still in Network                  43 vehicles        │
+  │ Avg Travel Time                  35.2 s/veh         │
+  │ Avg Delay                        17.2 s/veh         │
+  │ Avg Queue Length                  4.3 veh/step      │
+  │ Max Queue Length                  15 vehicles        │
+  │ Avg Wait Time                     8.5 s/veh         │
+  │ Avg Stops                         1.2 stops/veh     │
+  │ Stop Rate                        68.5 %             │
+  │ Throughput                       0.231 veh/s        │
+  │ Phase Switches                     52 switches       │
+  └─────────────────────────────────────────────────────┘
+```
+
+### Comparing Algorithms
+
+Run both modes separately, or use the one-shot comparison:
+
+```bash
+# Adaptive only
+python test_sdk_cityflow.py --steps 3600
+
+# Fixed-time only
+python test_sdk_cityflow.py --fixed --steps 3600
+
+# One-shot comparison (identical traffic seed for fairness)
+python test_sdk_cityflow.py --compare --steps 3600
+```
+
+The `--compare` mode runs both algorithms and prints a comparison report:
+
+```
+=================================================================
+  Algorithm Comparison Report
+=================================================================
+  Metric                      Adaptive   Fixed-time   Improvement
+  -----------------------------------------------------------------
+  Completed Vehicles(↑)          832        798      📈 +4.3%
+  Still in Network(↓)             43         77      📈 +44.2%
+  Avg Travel Time(↓)           35.2s      42.1s      📈 +16.4%
+  Avg Delay(↓)                 17.2s      24.1s      📈 +28.6%
+  Avg Queue Length(↓)           4.3        7.8       📈 +44.9%
+  Max Queue Length(↓)            15         28       📈 +46.4%
+  Avg Wait Time(↓)              8.5s      14.2s      📈 +40.1%
+  Avg Stops(↓)                  1.2        2.1       📈 +42.9%
+  Stop Rate(↓)                  68.5%      82.3%     📈 +16.8%
+  Throughput(↑)                 0.231      0.222     📈 +4.1%
+  Phase Switches                 52         18            —
+  -----------------------------------------------------------------
+  (↑) higher is better  (↓) lower is better
+  📈 significant improvement  📉 regression  ➖ no change
+```
+
+Key comparison dimensions:
+- **Delay reduction**: adaptive vs fixed-time travel time difference
+- **Queue management**: lower average queue = better traffic clearing; max queue reflects peak pressure
+- **Stop frequency**: fewer stops = better driving experience and lower fuel consumption
+- **Throughput**: higher throughput = more efficient intersection
+
+### Runtime Metrics (SDK)
+
+The SDK also tracks runtime performance via `get_metrics()`:
+
+```python
+metrics = sdk.get_metrics()
+# MetricsData(
+#     total_decisions=3600,
+#     successful_decisions=3598,
+#     failed_decisions=2,
+#     avg_inference_time_ms=12.5
+# )
+```
+
+| Metric | Description |
+|--------|-------------|
+| `total_decisions` | Total number of decisions made |
+| `successful_decisions` | Decisions that returned a valid phase |
+| `failed_decisions` | Decisions that failed (returned `None`) |
+| `avg_inference_time_ms` | Average inference time per decision |
+| `success_rate` | `successful / total * 100%` |
 
 <br/>
 

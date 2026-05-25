@@ -27,9 +27,6 @@ from algorithms.license_check import verify_license
 
 class AdvancedControl:
     def __init__(self, mq_path=None, logger=print, sensor_cnf={}, config_path=None, test=False):
-        # 检查许可证过期时间
-        
-        verify_license()
         if test:
             # 本地测试：只初始化算法，不连接中间件
             self.config = Config(config_path=config_path, sensor_cnf=sensor_cnf, test=True)
