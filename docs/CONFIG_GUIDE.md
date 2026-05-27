@@ -1,23 +1,29 @@
-# 决策算法配置说明手册
+<div align="right">
 
-> 适用版本：OpenTraffic TSC Engine v1.x
+[**中文**](CONFIG_GUIDE_CN.md) | **English**
 
----
+</div>
 
-## 目录
+# Algorithm Configuration Guide
 
-- [1. 通用配置](#1-通用配置)
-- [2. 溢出算法配置](#2-溢出算法配置)
-- [3. 算法参数配置](#3-算法参数配置)
-- [4. 完整配置示例](#4-完整配置示例)
+> Applicable version: OpenTraffic TSC Engine v1.x
 
 ---
 
-## 1. 通用配置
+## Table of Contents
+
+- [1. General Configuration](#1-general-configuration)
+- [2. Overflow Algorithm Configuration](#2-overflow-algorithm-configuration)
+- [3. Algorithm Parameters](#3-algorithm-parameters)
+- [4. Complete Configuration Example](#4-complete-configuration-example)
+
+---
+
+## 1. General Configuration
 
 ### `lane_to_phase`
 
-路口对应的相位映射。key 格式为 `{intersection_id}_方向_车道编号`，value 为相位方向编码。
+Intersection phase mapping. Key format: `{intersection_id}_{direction}_{lane_number}`, value: phase direction code.
 
 ```json
 "lane_to_phase": {
@@ -25,23 +31,23 @@
 }
 ```
 
-表示该路口东口第 0 车道（车道号从中心开始，即最内侧车道），ES 表示东→南（左转）。
+Means lane 0 at the east approach (numbered from center outwards), ES = East→South (left turn).
 
-**方向编码含义**：两位字母表示 from→to。WE = 西→东（直行），WN = 西→北（左转），SW = 南→西（右转）。
+**Direction code convention:** Two letters indicate from→to. WE = West→East (through), WN = West→North (left turn), SW = South→West (right turn).
 
-> **注意**：实际运行时 `{intersection_id}` 会被替换为 `cur_inter_id` 的值。
+> **Note:** At runtime, `{intersection_id}` is replaced with the value of `cur_inter_id`.
 
 ### `neighbour_to_phase`
 
-邻居路口的 `lane_to_phase` 映射。格式相同，用于多路口协调控制。默认留空 `{}`。
+Neighbor intersection `lane_to_phase` mapping. Same format, used for multi-intersection coordinated control. Default: `{}`.
 
 ### `cur_inter_id`
 
-当前路口 ID，如 `"XML_CNL"`。
+Current intersection ID, e.g. `"XML_CNL"`.
 
 ### `phases`
 
-非溢出相位的主相位列表。通常为 2 相位或 4 相位。
+List of main (non-overflow) phases. Typically 2 or 4 phases.
 
 ```json
 "phases": ["WE_EW_WN_ES", "NS_SN_NE_SW"]
@@ -49,7 +55,7 @@
 
 ### `stagePhase`
 
-信号机配置：相位编号 → 相位名称映射。
+Signal controller config: phase number → phase name mapping.
 
 ```json
 "stagePhase": {
@@ -60,11 +66,11 @@
 
 ### `all_roadnet_light_phase`
 
-路网中所有信号灯相位列表，与 `phases` 保持一致。
+All signal light phases in the road network. Keep consistent with `phases`.
 
 ### `phase_min_change_time`
 
-各相位的最短绿灯时间（秒）。信号机切换相位后，至少保持该时长才能再次切换。
+Minimum green time per phase (seconds). Once switched, the phase must be held for at least this duration.
 
 ```json
 "phase_min_change_time": {
@@ -73,30 +79,23 @@
 }
 ```
 
-> 增大该值会延长单相位最少运行时间，减少切换频率。
+> Increasing this value extends minimum phase duration and reduces switching frequency.
 
 ### `phase_min_change_time_high_level`
 
-高峰期的最短绿灯时间。优先级：自定义高峰 > 晚高峰 > 早高峰 > 默认。
-
-```json
-"phase_min_change_time_high_level": {
-    "WE_EW_WN_ES": 20,
-    "NS_SN_NE_SW": 20
-}
-```
+Peak-hour minimum green time. Priority: custom_peak > evening_rush > morning_rush > default.
 
 ### `phase_min_change_time_high_morning_level`
 
-早高峰最短绿灯时间。
+Morning rush hour minimum green time.
 
 ### `phase_min_change_time_high_evening_level`
 
-晚高峰最短绿灯时间。
+Evening rush hour minimum green time.
 
 ### `phase_max_keep_time`
 
-各相位的最大绿灯时间（秒）。达到最大绿后强制切换相位。一般不需要调整。
+Maximum green time per phase (seconds). Phase is force-switched when this limit is reached. Generally no adjustment needed.
 
 ```json
 "phase_max_keep_time": {
@@ -107,86 +106,86 @@
 
 ### `max_keep_time_high_level` / `max_keep_time_high_morning_level` / `max_keep_time_high_evening_level`
 
-各高峰时段的最大绿灯时间。逻辑与最短绿一致。
+Maximum green time for each peak period. Same logic as minimum green.
 
 ### `phase_max_keep_num`
 
-当算法连续调度次数超过 `各相位最短绿之和 × phase_max_keep_num` 时，检查是否有未被执行的相位并优先执行。
+When the algorithm's consecutive decision count exceeds `sum(min_green) × phase_max_keep_num`, it checks for unexecuted phases and prioritizes them.
 
-一般不需要调整，默认值 5。
+Generally no adjustment needed. Default: 5.
 
 ### `delay_time`
 
-采集或信号机延迟时间，单位秒。一般不需要调整，默认值 1。
+Sensor or signal controller delay time (seconds). Generally no adjustment needed. Default: 1.
 
 ### `debug`
 
-是否开启调试日志。生产环境建议关闭，默认 `false`。
+Enable debug logging. Recommended to disable in production. Default: `false`.
 
 ### `cityflowTest`
 
-CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿真模式下会跳过部分生产环境专用的安全检测。
+CityFlow simulation flag. `1` = simulation mode, `0` = production. Simulation mode skips certain production-specific safety checks.
 
 ### `min_running_speed`
 
-区分车辆行驶/等候状态的速度阈值（m/s）。车速 > 此值视为行驶，否则视为等待。
+Speed threshold (m/s) for classifying vehicles as running vs. waiting. Speed > this = running, otherwise waiting.
 
-> 增大该值可能导致红绿灯切换频率加快，反之减慢。默认值 7 m/s。
+> Increasing may increase switch frequency, decreasing does the opposite. Default: 7 m/s.
 
 ### `bind_phases`
 
-相位绑定配置。数组元素为 `phases` 中的索引，同一子数组内的相位被视为绑定组。
+Phase binding configuration. Elements are indices into `phases`; phases in the same group are bound together.
 
 ```json
 "bind_phases": [0, 1],
 "phases": ["WE_EW_WN_ES", "WN_ES", "NS_SN_NE_SW", "NE_SW"]
 ```
 
-此处 `[0, 1]` = ["WE_EW_WN_ES", "WN_ES"]，即东西直行与东西左转绑定。`[2, 3]` = 南北组同理。
+Here `[0, 1]` = ["WE_EW_WN_ES", "WN_ES"] (EW through + EW left turn bound). `[2, 3]` = NS group similarly.
 
 ### `layers_order_flag`
 
-绑定相位是否需要严格按顺序执行。`true` = 顺序执行，`false` = 不强制顺序。默认 `[false]`。
+Whether bound phases must execute in strict order. `true` = ordered, `false` = no order enforced. Default: `[false]`.
 
 ### `person_min_time`
 
-行人最短绿灯时间（秒）。暂不需要调整，默认 40s。
+Minimum pedestrian green time (seconds). No adjustment needed. Default: 40s.
 
 ### `person_recongnize_plan`
 
-行人识别方案。`0` = 方案一，`1` = 方案二。暂不需要调整，默认 0。
+Pedestrian recognition scheme. `0` = scheme 1, `1` = scheme 2. No adjustment needed. Default: 0.
 
 ### `person_factor`
 
-行人触发阈值。同一相位内行人数量超过此值时保持当前相位。默认值 5。
+Pedestrian trigger threshold. Hold current phase when pedestrian count exceeds this value. Default: 5.
 
 ### `start_anomaly_detect`
 
-是否开启异常检测。生产环境建议开启。默认 `false`。
+Enable anomaly detection. Recommended for production. Default: `false`.
 
 ### `anomaly_detect_interval`
 
-异常检测周期（步）。默认 10。
+Anomaly detection interval (steps). Default: 10.
 
 ### `is_cycle_control`
 
-是否进入固定时长周期控制模式。常规使用不需要调整，默认 `false`。
+Enable fixed-duration cycle control mode. No adjustment needed for normal use. Default: `false`.
 
 ### `algo_version`
 
-算法版本，固定为 `"v1"`。
+Algorithm version. Fixed as `"v1"`.
 
 ### `init_time`
 
-算法初始化阶段的最小相位保持时间（秒）。首次启动时，相位运行时间不足此值不执行初始化。默认 5s。
+Minimum phase hold time during initialization (seconds). On first start, initialization waits until phase time reaches this value. Default: 5s.
 
 ### `max_transition_duration`
 
-过渡最大持续时间（秒）。超过此时间持续处于过渡状态则告警。默认 20s。
+Maximum transition duration (seconds). Alerts if continuously in transition beyond this time. Default: 20s.
 
 ### `morning_rush`
 
-早高峰时段，格式 `["HH:MM", "HH:MM"]`（英文冒号）。
+Morning rush hours, format `["HH:MM", "HH:MM"]`.
 
 ```json
 "morning_rush": ["08:00", "08:30"]
@@ -194,7 +193,7 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 
 ### `evening_rush`
 
-晚高峰时段。
+Evening rush hours.
 
 ```json
 "evening_rush": ["18:00", "18:30"]
@@ -202,7 +201,7 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 
 ### `custom_peak_hours`
 
-自定义高峰时段，优先级高于早晚高峰。
+Custom peak hours, higher priority than morning/evening rush.
 
 ```json
 "custom_peak_hours": ["16:50", "17:10"]
@@ -210,15 +209,15 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 
 ---
 
-## 2. 溢出算法配置
+## 2. Overflow Algorithm Configuration
 
 ### `overflow_phase`
 
-溢出相位列表，即发生溢流时可使用的子相位。一般不需要调整。
+List of overflow phases — sub-phases available when overflow is detected. Generally no adjustment needed.
 
 ### `overflow_phase_to_road`
 
-溢出相位与路口的对应关系。
+Mapping of overflow phases to road approaches.
 
 ```json
 "overflow_phase_to_road": {
@@ -226,18 +225,18 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 }
 ```
 
-表示当南口、西口（或南+西口）发生溢流时，可以启用 WN（西→北）相位来疏导。
+When the south, west (or south+west) approaches experience overflow, phase WN (West→North) can be activated to relieve it.
 
 ### `min_overflow_dis_speed`
 
-溢出检测参数，格式为 `[车辆数, 距离, 距离2, 速度]`：
+Overflow detection parameters, format `[count, distance, distance2, speed]`:
 
-| 参数 | 说明 |
+| Index | Description |
 |------|------|
-| `[0]` | 速度为 0 的车辆数阈值 |
-| `[1]` | 车辆与路口距离条件（m） |
-| `[2]` | 第二距离条件（m） |
-| `[3]` | 速度条件（m/s） |
+| `[0]` | Threshold for zero-speed vehicle count |
+| `[1]` | Vehicle-to-intersection distance condition (m) |
+| `[2]` | Secondary distance condition (m) |
+| `[3]` | Speed condition (m/s) |
 
 ```json
 "min_overflow_dis_speed": [8, 110, 40, 2.78]
@@ -245,50 +244,50 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 
 ### `overflow_vehicle_count`
 
-满足距离/速度条件的车辆数阈值。超过此数量判定为溢流。默认值通常为 5。
+Vehicle count threshold for overflow detection. Default: typically 5.
 
 ### `road_to_overflow_vehicle_count`
 
-每个路口的溢出车辆数阈值，按道路维度细分。
+Per-road overflow vehicle count threshold.
 
 ### `overflow_times`
 
-连续满足溢出条件的次数阈值。防止误判，需要多次满足才确认溢出。
+Consecutive overflow condition threshold. Multiple detections required before confirming overflow, preventing false positives.
 
 ### `min_overflow_dis_speed_relax`
 
-溢出的放宽判定条件，格式为 `[距离, 速度]`。当设备采集精度不足时，用此放宽条件辅助判定。
+Relaxed overflow detection conditions, format `[distance, speed]`. Used as a fallback when sensor accuracy is insufficient.
 
 ```json
 "min_overflow_dis_speed_relax": [50, 4.1]
 ```
 
-即距离 ≤ 50m 且速度 ≤ 4.1 m/s 的车辆视为溢出车辆。
+Vehicles within 50m and speed ≤ 4.1 m/s are considered overflow vehicles under relaxed conditions.
 
 ---
 
-## 3. 算法参数配置
+## 3. Algorithm Parameters
 
 ### `advanced_weight`
 
-算法权重。值越大表示切换频率越低，单相位绿灯执行时间越长。
+Algorithm weight. Higher value = lower switching frequency, longer green time per phase.
 
-默认值 1.4。调整建议：期望更稳定少切相 → 增大；期望更灵敏响应流量 → 减小。
+Default: 1.4. Tuning advice: prefer stability → increase; prefer responsiveness → decrease.
 
 ### `high_level_weight_minspeed`
 
-高峰期算法参数，格式为 `[权重, 区分速度]`：
+Peak-hour algorithm parameters, format `[weight, speed_threshold]`:
 
-- 权重：高峰期的算法权重
-- 区分速度：高峰期区分行驶/等待的速度阈值（m/s）
+- weight: peak-hour algorithm weight
+- speed_threshold: peak-hour running/waiting classification threshold (m/s)
 
 ```json
 "high_level_weight_minspeed": [2.5, 6]
 ```
 
-### `phase_preference`（可选）
+### `phase_preference` (optional)
 
-相位优先级/青睐度。按 `bind_phases` 的分组索引配置。
+Phase priority/preference. Configured per `bind_phases` group index.
 
 ```json
 "bind_phases": [0, 1],
@@ -299,11 +298,11 @@ CityFlow 仿真测试标记。`1` 表示仿真模式，生产环境填 `0`。仿
 }
 ```
 
-此处 `"0"` 表示第 0 组（即东西向），`"1"` 表示第 1 组（即南北向）。`1.5` 表示期望南北向绿灯时间更长，适当调大即可。
+`"0"` = group 0 (EW direction), `"1"` = group 1 (NS direction). `1.5` means the NS through+left group is favored with longer green time. Increase the value to strengthen the preference.
 
 ---
 
-## 4. 完整配置示例
+## 4. Complete Configuration Example
 
 ```json
 {

@@ -11,6 +11,12 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20x86__64-orange.svg?style=for-the-badge&logo=linux&logoColor=white)]()
 [![GitHub Stars](https://img.shields.io/github/stars/OpenTraffic-Team/opentraffic-tsc-engine?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OpenTraffic-Team/opentraffic-tsc-engine)
 
+<br/>
+
+[![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-OpenTraffic-yellow.svg?style=for-the-badge)](https://huggingface.co/OpenTraffic)
+[![X](https://img.shields.io/badge/X-@OpenTraffic-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic)
+[![小红书](https://img.shields.io/badge/小红书-OpenTraffic-red.svg?style=for-the-badge&logo=rednote&logoColor=white)](https://www.xiaohongshu.com/OpenTraffic)
+
 </div>
 
 ### OpenTraffic — An open-source SDK for intelligent traffic signal control.
@@ -43,6 +49,7 @@
 - [:mechanical_arm: SDK Usage](#mechanical_arm-sdk-usage)
   - [:books: API Reference](#books-api-reference)
   - [:notebook: Input/Output Formats](#notebook-inputoutput-formats)
+  - [:green_book: SDK Guide](docs/SDK_GUIDE.md)
 - [:bar_chart: Evaluation Metrics](#bar_chart-evaluation-metrics)
 - [:question: FAQ](#question-faq)
 - [:heart: Acknowledgements](#heart-acknowledgements)
@@ -269,7 +276,7 @@ phase = algo.take_action(state, env_state)
 
 ### :notebook: Input/Output Formats
 
-> **Critical flow**: Raw sensor data (`recognitionSnap` / CityFlow lane format) **must first be converted via feature extraction** to the `vehicle_map` format before the algorithm can consume it. The internal `AdvancedV1.algorithm_control()` directly reads `vehicle_map["waiting_vehicle"]` and `vehicle_map["running_vehicle"]` — skipping conversion will cause a `KeyError`.
+> **Critical flow**: Raw sensor data (`recognitionSnap` / CityFlow lane format) **must first be converted via feature extraction** to the `vehicle_map` format before the algorithm can consume it. The internal `OpenTrafficTSC_V1.algorithm_control()` directly reads `vehicle_map["waiting_vehicle"]` and `vehicle_map["running_vehicle"]` — skipping conversion will cause a `KeyError`.
 
 ---
 
@@ -449,7 +456,7 @@ raw_state = {
 }
 
 # ❌ Passing raw data directly — state["XML_CNL"] lacks "waiting_vehicle" key,
-#    AdvancedV1.algorithm_control() will throw KeyError
+#    OpenTrafficTSC_V1.algorithm_control() will throw KeyError
 phase = algo.take_action(raw_state, env_state)
 ```
 

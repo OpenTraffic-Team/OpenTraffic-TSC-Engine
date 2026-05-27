@@ -1,4 +1,4 @@
-from algorithms.models.advanced_v1_agent import AdvancedV1
+from algorithms.models.opentraffic_tsc_v1_agent import OpenTrafficTSC_V1
 from algorithms.saferules.pre_safe_manager import PreSafeRules
 from algorithms.saferules.post_safe_manager import PostSafeRules
 from algorithms.anomaly.anomaly_detection import AnomalyDetector
@@ -43,16 +43,16 @@ class AdvancedControl:
             self.config = Config(redis=self.redis_stream, mq_config=MQ_config)
             self.config.LOGGER = logger
         if self.config.ALGO_VERSION == 'v1':
-            self.algo = AdvancedV1(self.config)
+            self.algo = OpenTrafficTSC_V1(self.config)
         elif self.config.ALGO_VERSION == 'v2_1':
-            from algorithms.models.advanced_v2_1_agent import AdvancedV2_1
-            self.algo = AdvancedV2_1(self.config)
+            from algorithms.models.opentraffic_tsc_v2_1_agent import OpenTrafficTSC_V2_1
+            self.algo = OpenTrafficTSC_V2_1(self.config)
         elif self.config.ALGO_VERSION == 'v2_2':
-            from algorithms.models.advanced_v2_2_agent import AdvancedV2_2
-            self.algo = AdvancedV2_2(self.config)
+            from algorithms.models.opentraffic_tsc_v2_2_agent import OpenTrafficTSC_V2_2
+            self.algo = OpenTrafficTSC_V2_2(self.config)
         elif self.config.ALGO_VERSION == 'v2_3':
-            from algorithms.models.advanced_v2_3_agent import AdvancedV2_3
-            self.algo = AdvancedV2_3(self.config)
+            from algorithms.models.opentraffic_tsc_v2_3_agent import OpenTrafficTSC_V2_3
+            self.algo = OpenTrafficTSC_V2_3(self.config)
         self.pre_safe_rules = PreSafeRules(self.algo)
         self.post_safe_rules = PostSafeRules(self.algo)
         self.call_count = 0

@@ -1,39 +1,46 @@
-# Algorithm SDK 示例
+<div align="right">
 
-包含 Algorithm SDK 的完整使用示例。
+[**中文**](README_CN.md) | **English**
 
-## 示例列表
+</div>
 
-| 文件 | 说明 | 模式 |
+# Algorithm SDK Examples
+
+Complete usage examples for the Algorithm SDK.
+
+## Example List
+
+| File | Description | Mode |
 |------|------|------|
-| `quick_demo.py` | 快速上手，动态车辆模拟 + 实时相位决策 | 仿真 |
-| `simulation_demo.py` | 批量仿真流程，含统计和分析 | 仿真 |
-| `production_demo.py` | 生产环境配置和连接示例 | 生产 |
-| `real_algo_runner.py` | 真实算法运行器（长时间仿真） | 仿真 |
+| `quick_demo.py` | Quick start: dynamic vehicle simulation + real-time phase decisions | Simulation |
+| `simulation_demo.py` | Batch simulation with statistics and analysis | Simulation |
+| `production_demo.py` | Production environment configuration and connection | Production |
+| `real_algo_runner.py` | Long-running simulation runner | Simulation |
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 入门 - 动态车辆模拟
+# Getting started — dynamic vehicle simulation
 python algorithms_sdk/examples/quick_demo.py
 
-# 基础 - 批量仿真
+# Basics — batch simulation
 python algorithms_sdk/examples/simulation_demo.py
 
-# 生产环境检查
+# Production environment check
 python algorithms_sdk/examples/production_demo.py --check
 ```
 
-## 示例详解
+## Examples in Detail
 
 ### quick_demo.py
 
-动态车辆模拟，约 90 秒实时运行。演示：
-- SDK 初始化（仿真模式）
-- 动态车辆进出模拟（NS/EW 方向流量随时间变化）
-- 实时相位决策和切换
-- 性能统计（总决策、成功率、平均耗时）
-- 相位分布分析
+Dynamic vehicle simulation, ~90 seconds real-time runtime. Covers:
+
+- SDK initialization (simulation mode)
+- Dynamic vehicle flow simulation (NS/EW traffic varies over time)
+- Real-time phase decisions and switching
+- Performance statistics (total decisions, success rate, avg latency)
+- Phase distribution analysis
 
 ```bash
 python algorithms_sdk/examples/quick_demo.py
@@ -41,50 +48,53 @@ python algorithms_sdk/examples/quick_demo.py
 
 ### simulation_demo.py
 
-批量仿真流程（默认 20 步）。演示：
-- 多步仿真循环
-- 指标收集和统计
-- 相位分布分析
-- 健康状态检查
+Batch simulation workflow (default 20 steps). Covers:
+
+- Multi-step simulation loop
+- Metric collection and statistics
+- Phase distribution analysis
+- Health status checks
 
 ```bash
 python algorithms_sdk/examples/simulation_demo.py
-# 修改步数：编辑 run_simulation(num_steps=100)
+# To change step count: edit run_simulation(num_steps=100)
 ```
 
 ### production_demo.py
 
-生产环境连接示例。演示：
-- Redis 配置检查
-- 生产模式 SDK 初始化
-- 手动 step 调用
-- 健康监控
+Production environment connection example. Covers:
+
+- Redis configuration check
+- Production-mode SDK initialization
+- Manual step invocation
+- Health monitoring
 
 ```bash
-# 仅检查环境
+# Check environment only
 python algorithms_sdk/examples/production_demo.py --check
 
-# 运行演示（需要 Redis 连接）
+# Run demo (requires Redis connection)
 python algorithms_sdk/examples/production_demo.py
 ```
 
-## 常见问题
+## FAQ
 
-### Q: 报错 "配置文件未找到"
+### Q: "Config file not found" error
 
-确保从项目根目录运行：
+Make sure you're running from the project root:
+
 ```bash
 cd /path/to/OpenTraffic
 python algorithms_sdk/examples/quick_demo.py
 ```
 
-### Q: 如何切换算法版本
+### Q: How to switch algorithm versions
 
 ```python
-sdk = AlgorithmSDK(mode="cityflow", algo_version="v2_1", config_path="config/test_cityflow.json")
+sdk = AlgorithmSDK(mode="cityflow", algo_version="v1", config_path="config/test_cityflow.json")
 ```
 
-### Q: 如何自定义日志
+### Q: How to use custom logging
 
 ```python
 def my_logger(msg):

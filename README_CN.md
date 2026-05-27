@@ -11,6 +11,12 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20x86__64-orange.svg?style=for-the-badge&logo=linux&logoColor=white)]()
 [![GitHub Stars](https://img.shields.io/github/stars/OpenTraffic-Team/opentraffic-tsc-engine?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OpenTraffic-Team/opentraffic-tsc-engine)
 
+<br/>
+
+[![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-OpenTraffic-yellow.svg?style=for-the-badge)](https://huggingface.co/OpenTraffic)
+[![X](https://img.shields.io/badge/X-@OpenTraffic-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic)
+[![小红书](https://img.shields.io/badge/小红书-OpenTraffic-red.svg?style=for-the-badge&logo=rednote&logoColor=white)](https://www.xiaohongshu.com/OpenTraffic)
+
 </div>
 
 ### OpenTraffic — 面向智能交通信号控制的开源 SDK。
@@ -35,7 +41,7 @@
   - [路口配置](#路口配置)
   - [CityFlow 引擎配置](#cityflow-引擎配置)
   - [Redis / MQ 配置](#redis--mq-配置)
-  - [配置参数详解](docs/CONFIG_GUIDE.md)
+  - [配置参数详解](docs/CONFIG_GUIDE_CN.md)
 - [:fire: 运行模式](#fire-运行模式)
   - [:ledger: 模式一 — 最简测试（无外部依赖）](#ledger-模式一--最简测试无外部依赖)
   - [:ledger: 模式二 — CityFlow 仿真](#ledger-模式二--cityflow-仿真)
@@ -43,6 +49,7 @@
 - [:mechanical_arm: SDK 使用](#mechanical_arm-sdk-使用)
   - [:books: API 参考](#books-api-参考)
   - [:notebook: 输入/输出格式](#notebook-输入输出格式)
+  - [:green_book: SDK 使用说明](docs/SDK_GUIDE_CN.md)
 - [:bar_chart: 评测指标](#bar_chart-评测指标)
 - [:question: 常见问题](#question-常见问题)
 - [:heart: 致谢](#heart-致谢)
@@ -130,7 +137,7 @@ config/cityflow/
 }
 ```
 
-> 完整配置参数说明见 [配置说明手册](docs/CONFIG_GUIDE.md)
+> 完整配置参数说明见 [配置说明手册](docs/CONFIG_GUIDE_CN.md)
 
 <br/>
 
@@ -268,7 +275,7 @@ phase = algo.take_action(state, env_state)
 
 ### :notebook: 输入/输出格式
 
-> **关键流程**：原始传感器数据（`recognitionSnap` / CityFlow lane 格式）**必须先经过特征提取转换**为 `vehicle_map` 格式，才能被算法消费。算法内部的 `AdvancedV1.algorithm_control()` 直接读取 `vehicle_map["waiting_vehicle"]` 和 `vehicle_map["running_vehicle"]`，跳过转换会导致 `KeyError`。
+> **关键流程**：原始传感器数据（`recognitionSnap` / CityFlow lane 格式）**必须先经过特征提取转换**为 `vehicle_map` 格式，才能被算法消费。算法内部的 `OpenTrafficTSC_V1.algorithm_control()` 直接读取 `vehicle_map["waiting_vehicle"]` 和 `vehicle_map["running_vehicle"]`，跳过转换会导致 `KeyError`。
 
 ---
 
@@ -448,7 +455,7 @@ raw_state = {
 }
 
 # ❌ 直接传入原始数据 — state["XML_CNL"] 中没有 "waiting_vehicle" 键，
-#    AdvancedV1.algorithm_control() 会抛出 KeyError
+#    OpenTrafficTSC_V1.algorithm_control() 会抛出 KeyError
 phase = algo.take_action(raw_state, env_state)
 ```
 
