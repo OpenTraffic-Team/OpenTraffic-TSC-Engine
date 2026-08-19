@@ -288,7 +288,7 @@ class AdvancedControl:
         
     def get_local_ip(self):
         '''
-        获取本机真实ip地址,防止获取127.0.0.1
+        获取本机真实ip地址
         '''
         try:
             # 使用 UDP 套接字连接到一个外部地址（不需要真的发出去）

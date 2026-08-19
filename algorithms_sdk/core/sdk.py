@@ -12,6 +12,19 @@ from .exceptions import SDKError, LicenseExpiredError, SDKInitError, AlgorithmEr
 from .types import Mode, DecisionResult, PhaseAction, MetricsData, HealthStatus
 
 
+def check_license(required=True):
+    """
+    授权校验（fail-closed）：
+    - 许可证模块缺失时：required=True 抛异常（生产环境），False 返回 False（开发/仿真）
+    - 校验失败由 verify_license 内部直接拒绝启动（不会"警告后放行"）
+    """
+    try:
+        from algorithms.license_check import verify_license
+    except ImportError:
+        if required:
+            raise LicenseExpiredError("缺少授权校验模块 (algorithms.license_check)，无法启动")
+        return False
+    return verify_license()
 
 
 
@@ -73,6 +86,9 @@ class AlgorithmSDK:
     def _initialize(self, **kwargs):
         """初始化SDK"""
         try:
+            # 授权校验：生产模式强制 fail-closed，仿真/开发模式模块缺失时不阻断
+            check_license(required=(self.mode == Mode.PRODUCTION))
+
             # 根据模式初始化
             if self.mode == Mode.CITYFLOW or self.mode == Mode.SUMO:
                 self._initialize_simulation(**kwargs)
