@@ -14,8 +14,7 @@
 <br/>
 
 [![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-OpenTraffic-yellow.svg?style=for-the-badge)](https://huggingface.co/OpenTraffic)
-[![X](https://img.shields.io/badge/X-@OpenTraffic-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic)
-[![小红书](https://img.shields.io/badge/小红书-OpenTraffic-red.svg?style=for-the-badge&logo=rednote&logoColor=white)](https://www.xiaohongshu.com/OpenTraffic)
+[![X](https://img.shields.io/badge/X-@OpenTraffic__CN-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic_CN)
 
 </div>
 
@@ -693,5 +692,19 @@ Thanks to [CityFlow](https://github.com/cityflow-project/CityFlow) for the open-
 <a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
   <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
 </a>
+
+<br/>
+
+## 📮 Contact
+
+<div align="center">
+
+📧 Email: **partners@opentraffic.cn**
+
+<br/>
+
+<img src="pic/wechat.jpg" alt="WeChat Official Account QR Code" width="160" />
+
+*WeChat Official Account*
 
 </div>

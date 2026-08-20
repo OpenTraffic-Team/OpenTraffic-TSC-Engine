@@ -14,8 +14,7 @@
 <br/>
 
 [![HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-OpenTraffic-yellow.svg?style=for-the-badge)](https://huggingface.co/OpenTraffic)
-[![X](https://img.shields.io/badge/X-@OpenTraffic-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic)
-[![小红书](https://img.shields.io/badge/小红书-OpenTraffic-red.svg?style=for-the-badge&logo=rednote&logoColor=white)](https://www.xiaohongshu.com/OpenTraffic)
+[![X](https://img.shields.io/badge/X-@OpenTraffic__CN-black.svg?style=for-the-badge&logo=x&logoColor=white)](https://x.com/OpenTraffic_CN)
 
 </div>
 
@@ -691,5 +690,19 @@ python -c "import redis; r=redis.Redis(host='<IP>', port=6390, password='<PWD>')
 <a href="https://www.star-history.com/#OpenTraffic-Team/opentraffic-tsc-engine&Date">
   <img src="https://api.star-history.com/svg?repos=OpenTraffic-Team/opentraffic-tsc-engine&type=Date" width="400" height="250" />
 </a>
+
+<br/>
+
+## 📮 联系我们
+
+<div align="center">
+
+📧 邮箱：**partners@opentraffic.cn**
+
+<br/>
+
+<img src="pic/wechat.jpg" alt="微信公众号二维码" width="160" />
+
+*微信公众号*
 
 </div>
